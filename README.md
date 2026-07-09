@@ -1,3 +1,8 @@
+
+https://marketplace.visualstudio.com/manage/publishers/alvarosiles
+
+https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-snippets
+
  # 🚀 Pro VSCode Keybindings
 
 Professional keyboard shortcuts for Visual Studio Code developers.
