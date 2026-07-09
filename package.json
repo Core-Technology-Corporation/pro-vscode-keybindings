@@ -1,0 +1,70 @@
+{
+  "name": "pro-vscode-keybindings",
+  "displayName": "Pro VSCode Keybindings",
+  "description": "Professional, productivity-focused keyboard shortcuts for Visual Studio Code.",
+  "version": "0.0.1",
+  "publisher": "alvarosiles",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Keymaps",
+    "Other"
+  ],
+  "keywords": [
+    "keybindings",
+    "keymap",
+    "shortcuts",
+    "productivity",
+    "keyboard"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alvarosiles/pro-vscode-keybindings.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alvarosiles/pro-vscode-keybindings/issues"
+  },
+  "homepage": "https://github.com/alvarosiles/pro-vscode-keybindings#readme",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "contributes": {
+    "keybindings": [
+      {
+        "key": "ctrl+1",
+        "command": "editor.action.commentLine",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+2",
+        "command": "editor.action.copyLinesDownAction",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+3",
+        "command": "editor.action.deleteLines",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+4",
+        "command": "workbench.action.terminal.toggleTerminal"
+      },
+      {
+        "key": "ctrl+5",
+        "command": "editor.action.formatDocument",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+6",
+        "command": "workbench.action.files.saveAll"
+      },
+      {
+        "key": "f1",
+        "command": "workbench.action.openSettingsJson"
+      }
+    ]
+  }
+}
