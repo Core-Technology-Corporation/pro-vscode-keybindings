@@ -7,6 +7,28 @@ https://github.com/kasecato/vscode-intellij-idea-keybindingsv
 
 https://marketplace.visualstudio.com/items?itemName=servisoftssnippets.servisofts-snippetshttps://marketplace.visualstudio.com/items?itemName=servisoftssnippets.servisofts-snippets
 
+vsce package
+
+hay algun archivo que esta por demas ? o este vvacio para que se vea profesioinal y limpio
+
+
+espera crere que solo deberia vevrse esto
+
+├── snippets/
+│   ├── javascript.json
+│   ├── typescript.json
+│   ├── html.json
+│   ├── css.json
+│   ├── php.json
+│   ├── laravel.json
+│   └── react.json
+├── images/
+├── package.json
+├── README.md
+├── CHANGELOG.md
+└── LICENSE
+
+
 
  # 🚀 Pro VSCode Keybindings
 
