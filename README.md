@@ -3,6 +3,11 @@ https://marketplace.visualstudio.com/manage/publishers/alvarosiles
 
 https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-snippets
 
+https://github.com/kasecato/vscode-intellij-idea-keybindingsv
+
+https://marketplace.visualstudio.com/items?itemName=servisoftssnippets.servisofts-snippetshttps://marketplace.visualstudio.com/items?itemName=servisoftssnippets.servisofts-snippets
+
+
  # 🚀 Pro VSCode Keybindings
 
 Professional keyboard shortcuts for Visual Studio Code developers.
