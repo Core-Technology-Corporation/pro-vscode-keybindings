@@ -141,15 +141,34 @@ To add or change a shortcut, edit the matching file under `src/`, run `npm run b
 
 ## Publishing (maintainers)
 
+One-time setup:
+
 ```bash
 npm install -g @vscode/vsce
 vsce login alvarosiles
+```
+
+Requires a Personal Access Token from an Azure DevOps organization linked to the `alvarosiles` publisher.
+
+Then, for each release, use `scripts/publish.ps1` — it builds, bumps the version, commits and packages a `.vsix`:
+
+```powershell
+./scripts/publish.ps1 -Message "Add debug shortcuts"
+```
+
+This does **not** push or publish by default. Add `-Push` to push the commit and/or `-Publish` to publish to the Marketplace once you're satisfied with the local `.vsix`:
+
+```powershell
+./scripts/publish.ps1 -Message "Add debug shortcuts" -Bump minor -Push -Publish
+```
+
+Or do it manually:
+
+```bash
 npm run build     # also runs automatically via vscode:prepublish
 vsce package
 vsce publish
 ```
-
-Requires a Personal Access Token from an Azure DevOps organization linked to the `alvarosiles` publisher.
 
 ## License
 
