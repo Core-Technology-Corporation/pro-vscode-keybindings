@@ -1,0 +1,34 @@
+[
+  {
+    "key": "ctrl+alt+g",
+    "command": "workbench.view.scm"
+  },
+  {
+    "key": "ctrl+alt+m",
+    "command": "git.commit"
+  },
+  {
+    "key": "ctrl+alt+s",
+    "command": "git.stageAll"
+  },
+  {
+    "key": "ctrl+alt+shift+s",
+    "command": "git.unstageAll"
+  },
+  {
+    "key": "ctrl+alt+p",
+    "command": "git.push"
+  },
+  {
+    "key": "ctrl+alt+shift+p",
+    "command": "git.pull"
+  },
+  {
+    "key": "ctrl+alt+y",
+    "command": "git.sync"
+  },
+  {
+    "key": "ctrl+alt+shift+b",
+    "command": "git.createBranch"
+  }
+]

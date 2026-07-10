@@ -1,0 +1,26 @@
+[
+  {
+    "key": "ctrl+alt+i",
+    "command": "editor.action.inlineSuggest.trigger",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+]",
+    "command": "editor.action.inlineSuggest.showNext",
+    "when": "inlineSuggestionVisible"
+  },
+  {
+    "key": "ctrl+alt+[",
+    "command": "editor.action.inlineSuggest.showPrevious",
+    "when": "inlineSuggestionVisible"
+  },
+  {
+    "key": "ctrl+alt+enter",
+    "command": "inlineChat.start",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+shift+enter",
+    "command": "workbench.action.chat.open"
+  }
+]

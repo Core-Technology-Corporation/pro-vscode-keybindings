@@ -1,5 +1,11 @@
 .git/**
 .gitignore
 .vscodeignore
+.vscode/**
+.claude/**
 node_modules/**
 *.vsix
+src/**
+scripts/**
+dist/**
+images/app.png

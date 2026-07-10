@@ -2,11 +2,12 @@
   "name": "pro-vscode-keybindings",
   "displayName": "Pro VSCode Keybindings",
   "description": "Professional, productivity-focused keyboard shortcuts for Visual Studio Code.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "alvarosiles",
   "license": "MIT",
+  "icon": "images/icon.png",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.93.0"
   },
   "categories": [
     "Keymaps",
@@ -17,7 +18,11 @@
     "keymap",
     "shortcuts",
     "productivity",
-    "keyboard"
+    "keyboard",
+    "git",
+    "debug",
+    "terminal",
+    "copilot"
   ],
   "repository": {
     "type": "git",
@@ -31,8 +36,71 @@
     "color": "#1e1e1e",
     "theme": "dark"
   },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "vscode:prepublish": "npm run build"
+  },
   "contributes": {
     "keybindings": [
+      {
+        "key": "ctrl+alt+i",
+        "command": "editor.action.inlineSuggest.trigger",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+alt+]",
+        "command": "editor.action.inlineSuggest.showNext",
+        "when": "inlineSuggestionVisible"
+      },
+      {
+        "key": "ctrl+alt+[",
+        "command": "editor.action.inlineSuggest.showPrevious",
+        "when": "inlineSuggestionVisible"
+      },
+      {
+        "key": "ctrl+alt+enter",
+        "command": "inlineChat.start",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+alt+shift+enter",
+        "command": "workbench.action.chat.open"
+      },
+      {
+        "key": "ctrl+7",
+        "command": "workbench.action.debug.start",
+        "when": "!inDebugMode"
+      },
+      {
+        "key": "ctrl+8",
+        "command": "workbench.action.debug.stop",
+        "when": "inDebugMode"
+      },
+      {
+        "key": "ctrl+9",
+        "command": "workbench.action.debug.stepOver",
+        "when": "inDebugMode"
+      },
+      {
+        "key": "ctrl+0",
+        "command": "editor.debug.action.toggleBreakpoint",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+alt+shift+r",
+        "command": "workbench.action.debug.restart",
+        "when": "inDebugMode"
+      },
+      {
+        "key": "ctrl+alt+shift+o",
+        "command": "workbench.action.debug.stepOut",
+        "when": "inDebugMode"
+      },
+      {
+        "key": "ctrl+alt+shift+i",
+        "command": "workbench.action.debug.stepInto",
+        "when": "inDebugMode"
+      },
       {
         "key": "ctrl+1",
         "command": "editor.action.commentLine",
@@ -49,10 +117,6 @@
         "when": "editorTextFocus && !editorReadonly"
       },
       {
-        "key": "ctrl+4",
-        "command": "workbench.action.terminal.toggleTerminal"
-      },
-      {
         "key": "ctrl+5",
         "command": "editor.action.formatDocument",
         "when": "editorTextFocus && !editorReadonly"
@@ -62,8 +126,131 @@
         "command": "workbench.action.files.saveAll"
       },
       {
+        "key": "ctrl+alt+j",
+        "command": "editor.action.joinLines",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+alt+u",
+        "command": "editor.action.transformToUppercase",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+alt+shift+u",
+        "command": "editor.action.transformToLowercase",
+        "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "ctrl+alt+e",
+        "command": "workbench.view.explorer"
+      },
+      {
+        "key": "ctrl+alt+b",
+        "command": "workbench.action.toggleSidebarVisibility"
+      },
+      {
+        "key": "ctrl+alt+n",
+        "command": "explorer.newFile",
+        "when": "explorerViewletFocus"
+      },
+      {
+        "key": "ctrl+alt+shift+n",
+        "command": "explorer.newFolder",
+        "when": "explorerViewletFocus"
+      },
+      {
+        "key": "ctrl+alt+r",
+        "command": "renameFile",
+        "when": "explorerViewletFocus"
+      },
+      {
+        "key": "ctrl+alt+shift+e",
+        "command": "workbench.files.action.collapseExplorerFolders",
+        "when": "explorerViewletFocus"
+      },
+      {
+        "key": "ctrl+alt+g",
+        "command": "workbench.view.scm"
+      },
+      {
+        "key": "ctrl+alt+m",
+        "command": "git.commit"
+      },
+      {
+        "key": "ctrl+alt+s",
+        "command": "git.stageAll"
+      },
+      {
+        "key": "ctrl+alt+shift+s",
+        "command": "git.unstageAll"
+      },
+      {
+        "key": "ctrl+alt+p",
+        "command": "git.push"
+      },
+      {
+        "key": "ctrl+alt+shift+p",
+        "command": "git.pull"
+      },
+      {
+        "key": "ctrl+alt+y",
+        "command": "git.sync"
+      },
+      {
+        "key": "ctrl+alt+shift+b",
+        "command": "git.createBranch"
+      },
+      {
         "key": "f1",
         "command": "workbench.action.openSettingsJson"
+      },
+      {
+        "key": "ctrl+alt+z",
+        "command": "workbench.action.toggleZenMode"
+      },
+      {
+        "key": "ctrl+alt+\\",
+        "command": "workbench.action.splitEditor"
+      },
+      {
+        "key": "ctrl+alt+,",
+        "command": "workbench.action.togglePanel"
+      },
+      {
+        "key": "ctrl+alt+shift+w",
+        "command": "workbench.action.closeAllEditors"
+      },
+      {
+        "key": "ctrl+alt+shift+t",
+        "command": "workbench.action.reopenClosedEditor"
+      },
+      {
+        "key": "ctrl+4",
+        "command": "workbench.action.terminal.toggleTerminal"
+      },
+      {
+        "key": "ctrl+alt+t",
+        "command": "workbench.action.terminal.new"
+      },
+      {
+        "key": "ctrl+alt+c",
+        "command": "workbench.action.terminal.clear",
+        "when": "terminalFocus"
+      },
+      {
+        "key": "ctrl+alt+k",
+        "command": "workbench.action.terminal.kill",
+        "when": "terminalFocus"
+      },
+      {
+        "key": "ctrl+alt+right",
+        "command": "workbench.action.terminal.focusNext",
+        "when": "terminalFocus"
+      },
+      {
+        "key": "ctrl+alt+left",
+        "command": "workbench.action.terminal.focusPrevious",
+        "when": "terminalFocus"
       }
     ]
   }
