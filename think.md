@@ -23,3 +23,21 @@ vsce publish
 Nada de esto está commiteado todavía — avísame si quieres que arme el commit.
 
 alvaro
+
+Listo. Creé scripts/publish.ps1 — un script que automatiza el flujo completo:
+
+npm run build (regenera keybindings)
+Bump de versión (-Bump patch/minor/major, default patch)
+git add -A + commit con tu mensaje
+vsce package (genera el .vsix)
+Opcional con flags: -Push (git push) y -Publish (vsce publish) — por defecto NO empuja ni publica, así podés revisar el .vsix antes.
+Uso típico:
+
+
+./scripts/publish.ps1 -Message "Add debug shortcuts"
+Y cuando estés conforme:
+
+
+./scripts/publish.ps1 -Message "Add debug shortcuts" -Push -Publish
+Ya quedó commiteado (5894456), junto con la sección de README actualizada. No lo ejecuté ni hice push/publish — eso queda para cuando vos lo decidas.
+
