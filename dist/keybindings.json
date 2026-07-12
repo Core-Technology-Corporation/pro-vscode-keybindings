@@ -38,6 +38,10 @@
     "command": "proKeybindings.quickCommit"
   },
   {
+    "key": "f9",
+    "command": "proKeybindings.commitMessagePicker"
+  },
+  {
     "key": "f7",
     "command": "proKeybindings.detectProjectType"
   },

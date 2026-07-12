@@ -147,21 +147,229 @@ async function cmdOpenGitHubDesktop(): Promise<void> {
   runInTerminal(`github "${root}"`);
 }
 
-async function cmdQuickCommit(): Promise<void> {
+async function getFirstRepo(): Promise<any | undefined> {
   const gitExtension = vscode.extensions.getExtension('vscode.git');
   if (!gitExtension) {
     vscode.window.showWarningMessage('Pro Keybindings: la extensión de Git de VS Code no está disponible.');
-    return;
+    return undefined;
   }
   const git = gitExtension.isActive ? gitExtension.exports : await gitExtension.activate();
   const api = git.getAPI(1);
   const repo = api.repositories[0];
   if (!repo) {
     vscode.window.showWarningMessage('Pro Keybindings: no se encontró ningún repositorio Git abierto.');
+    return undefined;
+  }
+  return repo;
+}
+
+async function cmdQuickCommit(): Promise<void> {
+  const repo = await getFirstRepo();
+  if (!repo) {
     return;
   }
   repo.inputBox.value = 'chore: update\n\nworking';
   await vscode.commands.executeCommand('workbench.view.scm');
+}
+
+const commitTitles = [
+  'feat: agrega autenticación con JWT',
+  'feat: implementa recuperación de contraseña',
+  'fix: corrige validación del formulario',
+  'refactor: separa lógica del controlador',
+  'style: organiza importaciones',
+  'docs: actualiza README',
+  'test: agrega pruebas del servicio de usuarios',
+  'perf: optimiza consulta de productos',
+  'chore: actualiza dependencias'
+];
+
+const commitDescriptionsByType: Record<string, string[]> = {
+  feat: [
+    'feat: Se agregan las columnas solicitadas',
+    'feat: Se implementa el carrito de compras',
+    'feat: Se crean roles y permisos para el módulo de ventas',
+    'feat: Se incorpora el tema oscuro',
+    'feat: Se agrega la opción de exportar a Excel',
+    'feat: Se implementan filtros de búsqueda',
+    'feat: Se agrega paginación al listado de usuarios',
+    'feat: Se crea el módulo de reportes'
+  ],
+  fix: [
+    'fix: Se corrige el error al iniciar sesión',
+    'fix: Se soluciona el problema al anular registros',
+    'fix: Se corrige la validación del formulario',
+    'fix: Se repara la navegación entre páginas',
+    'fix: Se corrige el cálculo de totales',
+    'fix: Se soluciona el error en la carga de imágenes',
+    'fix: Se evita la creación de registros duplicados',
+    'fix: Se corrige la actualización de datos'
+  ],
+  docs: [
+    'docs: Se actualiza el README',
+    'docs: Se agrega la guía de instalación',
+    'docs: Se documenta la API',
+    'docs: Se corrigen errores ortográficos',
+    'docs: Se agregan ejemplos de uso',
+    'docs: Se actualiza la documentación del proyecto',
+    'docs: Se documentan las nuevas funcionalidades'
+  ],
+  refactor: [
+    'refactor: Se reorganiza la estructura del proyecto',
+    'refactor: Se simplifica la lógica de autenticación',
+    'refactor: Se separa la lógica del controlador',
+    'refactor: Se elimina código duplicado',
+    'refactor: Se extraen funciones reutilizables',
+    'refactor: Se mejora la organización de componentes',
+    'refactor: Se renombran métodos para mayor claridad'
+  ],
+  test: [
+    'test: Se agregan pruebas para el módulo de ventas',
+    'test: Se actualizan las pruebas de autenticación',
+    'test: Se corrigen las pruebas unitarias',
+    'test: Se agregan pruebas de integración',
+    'test: Se aumenta la cobertura de pruebas'
+  ],
+  chore: [
+    'chore: Se actualizan las dependencias',
+    'chore: Se configura ESLint',
+    'chore: Se agrega el script de despliegue',
+    'chore: Se actualiza la configuración de Git',
+    'chore: Se eliminan archivos temporales',
+    'chore: Se reorganiza la configuración del proyecto',
+    'chore: Se actualizan las variables de entorno'
+  ],
+  perf: [
+    'perf: Se optimiza la consulta a la base de datos',
+    'perf: Se reduce el tiempo de carga',
+    'perf: Se optimiza el consumo de memoria',
+    'perf: Se mejora el rendimiento de las consultas',
+    'perf: Se optimiza la carga de imágenes',
+    'perf: Se reducen las peticiones al servidor'
+  ]
+};
+
+const ANSI_RESET = '\x1b[0m';
+const ANSI_BOLD = '\x1b[1m';
+const ANSI_DIM = '\x1b[2m';
+
+const typeColors: Record<string, string> = {
+  feat: '\x1b[32m', // green
+  fix: '\x1b[31m', // red
+  refactor: '\x1b[36m', // cyan
+  style: '\x1b[35m', // magenta
+  docs: '\x1b[34m', // blue
+  test: '\x1b[33m', // yellow
+  perf: '\x1b[92m', // bright green
+  chore: '\x1b[90m' // gray
+};
+
+function colorFor(text: string): string {
+  const type = text.split(':')[0].trim();
+  return typeColors[type] ?? '';
+}
+
+class CommitMenuPty implements vscode.Pseudoterminal {
+  private writeEmitter = new vscode.EventEmitter<string>();
+  onDidWrite = this.writeEmitter.event;
+  private closeEmitter = new vscode.EventEmitter<number>();
+  onDidClose = this.closeEmitter.event;
+
+  private stage: 'title' | 'description' = 'title';
+  private selectedTitle = '';
+  private buffer = '';
+
+  constructor(private readonly repo: any) {}
+
+  open(): void {
+    this.printTitleMenu();
+  }
+
+  close(): void {
+    // nothing to clean up
+  }
+
+  handleInput(data: string): void {
+    if (data === '\r') {
+      this.writeEmitter.fire('\r\n');
+      this.onEnter();
+      return;
+    }
+    if (data === '\x7f') {
+      if (this.buffer.length > 0) {
+        this.buffer = this.buffer.slice(0, -1);
+        this.writeEmitter.fire('\b \b');
+      }
+      return;
+    }
+    if (/^[0-9]$/.test(data)) {
+      this.buffer += data;
+      this.writeEmitter.fire(data);
+    }
+  }
+
+  private printTitleMenu(): void {
+    this.writeEmitter.fire(`\r\n${ANSI_BOLD}Elegí el título del commit:${ANSI_RESET}\r\n\r\n`);
+    commitTitles.forEach((title, i) => {
+      this.writeEmitter.fire(`${colorFor(title)}  ${i + 1}) ${title}${ANSI_RESET}\r\n`);
+    });
+    this.writeEmitter.fire(`\r\n${ANSI_DIM}Escribí un número y Enter:${ANSI_RESET} `);
+  }
+
+  private printDescriptionMenu(descriptions: string[]): void {
+    this.writeEmitter.fire(`\r\n${ANSI_BOLD}Elegí la descripción del commit:${ANSI_RESET}\r\n\r\n`);
+    descriptions.forEach((desc, i) => {
+      this.writeEmitter.fire(`${colorFor(desc)}  ${i + 1}) ${desc}${ANSI_RESET}\r\n`);
+    });
+    this.writeEmitter.fire(`\r\n${ANSI_DIM}Escribí un número y Enter:${ANSI_RESET} `);
+  }
+
+  private onEnter(): void {
+    const n = parseInt(this.buffer, 10);
+    this.buffer = '';
+
+    if (this.stage === 'title') {
+      if (!(n >= 1 && n <= commitTitles.length)) {
+        this.writeEmitter.fire(`${ANSI_DIM}Opción inválida.${ANSI_RESET} `);
+        return;
+      }
+      this.selectedTitle = commitTitles[n - 1];
+      const type = this.selectedTitle.split(':')[0].trim();
+      const descriptions = commitDescriptionsByType[type];
+      if (!descriptions) {
+        this.finish(this.selectedTitle);
+        return;
+      }
+      this.stage = 'description';
+      this.printDescriptionMenu(descriptions);
+      return;
+    }
+
+    const type = this.selectedTitle.split(':')[0].trim();
+    const descriptions = commitDescriptionsByType[type];
+    if (!(n >= 1 && n <= descriptions.length)) {
+      this.writeEmitter.fire(`${ANSI_DIM}Opción inválida.${ANSI_RESET} `);
+      return;
+    }
+    this.finish(this.selectedTitle, descriptions[n - 1]);
+  }
+
+  private async finish(title: string, description?: string): Promise<void> {
+    this.repo.inputBox.value = description ? `${title}\n\n${description}` : title;
+    this.writeEmitter.fire(`\r\n${ANSI_BOLD}✔ Commit box actualizado.${ANSI_RESET}\r\n`);
+    await vscode.commands.executeCommand('workbench.view.scm');
+    this.closeEmitter.fire(0);
+  }
+}
+
+async function cmdCommitMessagePicker(): Promise<void> {
+  const repo = await getFirstRepo();
+  if (!repo) {
+    return;
+  }
+  const pty = new CommitMenuPty(repo);
+  const terminal = vscode.window.createTerminal({ name: 'Commit Message', pty });
+  terminal.show();
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -169,7 +377,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('proKeybindings.detectProjectType', cmdDetectProjectType),
     vscode.commands.registerCommand('proKeybindings.smartRun', cmdSmartRun),
     vscode.commands.registerCommand('proKeybindings.quickCommit', cmdQuickCommit),
-    vscode.commands.registerCommand('proKeybindings.openGitHubDesktop', cmdOpenGitHubDesktop)
+    vscode.commands.registerCommand('proKeybindings.openGitHubDesktop', cmdOpenGitHubDesktop),
+    vscode.commands.registerCommand('proKeybindings.commitMessagePicker', cmdCommitMessagePicker)
   );
 }
 

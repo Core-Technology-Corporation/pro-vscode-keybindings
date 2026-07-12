@@ -67,6 +67,10 @@
       {
         "command": "proKeybindings.openGitHubDesktop",
         "title": "Pro Keybindings: Open in GitHub Desktop"
+      },
+      {
+        "command": "proKeybindings.commitMessagePicker",
+        "title": "Pro Keybindings: Commit Message Picker"
       }
     ],
     "keybindings": [
@@ -107,6 +111,10 @@
       {
         "key": "f8",
         "command": "proKeybindings.quickCommit"
+      },
+      {
+        "key": "f9",
+        "command": "proKeybindings.commitMessagePicker"
       },
       {
         "key": "f7",

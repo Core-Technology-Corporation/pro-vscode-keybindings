@@ -6,5 +6,9 @@
   {
     "key": "f8",
     "command": "proKeybindings.quickCommit"
+  },
+  {
+    "key": "f9",
+    "command": "proKeybindings.commitMessagePicker"
   }
 ]
