@@ -1,6 +1,6 @@
 # 🚀 Pro VSCode Keybindings
 
-*[🇺🇸 English](README.md)*
+*[🌐 English](README.md)*
 
 Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteligentes para Git y para ejecutar proyectos. Las mismas teclas en Windows, Linux y macOS.
 
