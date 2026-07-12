@@ -11,3 +11,6 @@ extension/**
 dist/keybindings.json
 tsconfig.json
 images/app.png
+think.md
+install_local
+ejecturar local
