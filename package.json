@@ -9,6 +9,7 @@
   "engines": {
     "vscode": "^1.93.0"
   },
+  "main": "./dist/extension.js",
   "categories": [
     "Keymaps",
     "Other"
@@ -37,10 +38,29 @@
     "theme": "dark"
   },
   "scripts": {
-    "build": "node scripts/build.js",
+    "build:keybindings": "node scripts/build.js",
+    "build:extension": "esbuild extension/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node18",
+    "build": "npm run build:keybindings && npm run build:extension",
+    "watch": "npm run build:extension -- --watch",
     "vscode:prepublish": "npm run build"
   },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.93.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.5.0"
+  },
   "contributes": {
+    "commands": [
+      {
+        "command": "proKeybindings.detectProjectType",
+        "title": "Pro Keybindings: Detect Project Type"
+      },
+      {
+        "command": "proKeybindings.smartRun",
+        "title": "Pro Keybindings: Smart Run (Debug / Web / Package)"
+      }
+    ],
     "keybindings": [
       {
         "key": "ctrl+alt+i",
@@ -85,6 +105,16 @@
         "key": "ctrl+0",
         "command": "editor.debug.action.toggleBreakpoint",
         "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+0",
+        "command": "proKeybindings.detectProjectType",
+        "when": "!editorTextFocus"
+      },
+      {
+        "key": "ctrl+8",
+        "command": "proKeybindings.smartRun",
+        "when": "!inDebugMode"
       },
       {
         "key": "ctrl+alt+shift+r",

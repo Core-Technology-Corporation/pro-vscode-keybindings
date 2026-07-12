@@ -4,10 +4,11 @@ Professional, productivity-focused keyboard shortcuts for Visual Studio Code —
 
 ## Features
 
-- ⚡ 46 curated shortcuts covering the whole daily workflow
+- ⚡ 48 curated shortcuts covering the whole daily workflow
 - 🧩 Organized into logical groups (editor, terminal, explorer, git, debug, AI, navigation)
 - ⌨️ Consistent `Ctrl+Alt+<letter>` scheme so shortcuts are easy to remember
 - 🤖 Includes shortcuts for inline suggestions / Copilot Chat (no-op if you don't have an AI extension installed)
+- 🧠 **Smart commands**: `Ctrl+0` detects the current project's type, `Ctrl+9` opens a quick pick to run the right action for it (Live Server, `npm run web`, debug, `npm start`, `vsce package`)
 
 > Note: some bindings intentionally override VS Code defaults (e.g. `Ctrl+1..0` normally focus editor group N). See the tables below for the full mapping.
 
@@ -66,12 +67,26 @@ Professional, productivity-focused keyboard shortcuts for Visual Studio Code —
 | Key | Command | Action |
 | --- | --- | --- |
 | `Ctrl+7` | `workbench.action.debug.start` | Start debugging |
-| `Ctrl+8` | `workbench.action.debug.stop` | Stop debugging |
+| `Ctrl+8` | `workbench.action.debug.stop` | Stop debugging *(while debugging)* |
+| `Ctrl+8` | `proKeybindings.smartRun` | Smart Run quick pick *(when not debugging)* — see below |
 | `Ctrl+9` | `workbench.action.debug.stepOver` | Step over |
-| `Ctrl+0` | `editor.debug.action.toggleBreakpoint` | Toggle breakpoint |
+| `Ctrl+0` | `editor.debug.action.toggleBreakpoint` | Toggle breakpoint *(editor focused)* |
+| `Ctrl+0` | `proKeybindings.detectProjectType` | Detect Project Type *(editor not focused)* — see below |
 | `Ctrl+Alt+Shift+I` | `workbench.action.debug.stepInto` | Step into |
 | `Ctrl+Alt+Shift+O` | `workbench.action.debug.stepOut` | Step out |
 | `Ctrl+Alt+Shift+R` | `workbench.action.debug.restart` | Restart debugging |
+
+### Smart commands
+
+Two commands ship with real extension logic (not just static keybindings):
+
+- **`proKeybindings.detectProjectType`** (`Ctrl+0` outside the editor) — inspects the open workspace folder (`package.json` dependencies, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`/`build.gradle`, loose `.java` files, `index.html`) and prints the detected type (React, React Native, Next.js, Vue, Angular, Node/Express, Python, Go, Rust, Java, VS Code Extension, or static HTML/CSS/JS) to a dedicated terminal.
+- **`proKeybindings.smartRun`** (`Ctrl+8` while not debugging) — opens a quick pick with 5 options and runs the matching action:
+  - **HTML** → `extension.liveServer.goOnline` (requires the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension)
+  - **React** → `npm run web` in the terminal
+  - **Java** → `workbench.action.debug.start`
+  - **React Native** → `npm start` in the terminal
+  - **Extension** → `npx vsce package` in the terminal
 
 ### AI
 
@@ -105,14 +120,15 @@ Install from the [Visual Studio Code Marketplace](https://marketplace.visualstud
 ```
 pro-vscode-keybindings/
 │
-├── package.json          # Extension manifest (contributes.keybindings is generated)
+├── package.json          # Extension manifest (contributes.keybindings/.commands, main)
 ├── README.md
 ├── CHANGELOG.md
 ├── LICENSE
+├── tsconfig.json
 ├── images/
 │   └── icon.png
 │
-├── src/                   # Source of truth, one file per category
+├── src/                   # Keybinding source of truth, one file per category
 │   ├── editor.json
 │   ├── terminal.json
 │   ├── explorer.json
@@ -121,23 +137,32 @@ pro-vscode-keybindings/
 │   ├── ai.json
 │   └── navigation.json
 │
+├── extension/
+│   └── extension.ts       # Extension host logic: proKeybindings.detectProjectType
+│                           # and proKeybindings.smartRun
+│
 ├── scripts/
 │   └── build.js           # Merges src/*.json, validates for key collisions,
 │                           # writes dist/keybindings.json and updates package.json
 │
-└── dist/
-    └── keybindings.json    # Generated, read-only reference build output
+└── dist/                  # Generated (git-ignored build output)
+    ├── keybindings.json    # Reference copy of contributes.keybindings
+    └── extension.js        # esbuild bundle, this is what "main" points to
 ```
 
-VS Code only reads keybindings from `contributes.keybindings` in `package.json` — it can't load an external file. `scripts/build.js` is the single source of truth pipeline: edit the category files under `src/`, then run the build so both `dist/keybindings.json` and `package.json` stay in sync.
+VS Code only reads keybindings from `contributes.keybindings` in `package.json` — it can't load an external file. `scripts/build.js` is the single source of truth pipeline for keybindings: edit the category files under `src/`, then run the build so both `dist/keybindings.json` and `package.json` stay in sync. Runtime behavior (the two smart commands) lives in `extension/extension.ts` and is bundled separately by esbuild into `dist/extension.js`, which is the only build artifact actually shipped in the `.vsix` (see `.vscodeignore`).
 
 ## Development
 
 ```bash
-npm run build   # merge src/*.json -> dist/keybindings.json + package.json
+npm install
+npm run build            # build:keybindings + build:extension
+npm run watch             # rebuild extension.js on change while developing
 ```
 
 To add or change a shortcut, edit the matching file under `src/`, run `npm run build`, and reload the Extension Development Host (`F5`) to try it out. The build script fails fast if two entries claim the same key combination.
+
+To change the smart-command logic, edit `extension/extension.ts`, run `npm run build` (or `npm run watch`), then reload the Extension Development Host (`F5`).
 
 ## Publishing (maintainers)
 

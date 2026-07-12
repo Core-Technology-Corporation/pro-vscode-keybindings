@@ -44,6 +44,16 @@
     "when": "editorTextFocus"
   },
   {
+    "key": "ctrl+0",
+    "command": "proKeybindings.detectProjectType",
+    "when": "!editorTextFocus"
+  },
+  {
+    "key": "ctrl+8",
+    "command": "proKeybindings.smartRun",
+    "when": "!inDebugMode"
+  },
+  {
     "key": "ctrl+alt+shift+r",
     "command": "workbench.action.debug.restart",
     "when": "inDebugMode"
