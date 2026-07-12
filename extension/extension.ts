@@ -160,7 +160,7 @@ async function cmdQuickCommit(): Promise<void> {
     vscode.window.showWarningMessage('Pro Keybindings: no se encontró ningún repositorio Git abierto.');
     return;
   }
-  repo.inputBox.value = 'chore: update\n\nMinor changes and improvements.';
+  repo.inputBox.value = 'chore: update\n\nworking';
   await vscode.commands.executeCommand('workbench.view.scm');
 }
 

@@ -34,11 +34,11 @@
     "command": "proKeybindings.openGitHubDesktop"
   },
   {
-    "key": "f9",
+    "key": "f8",
     "command": "proKeybindings.quickCommit"
   },
   {
-    "key": "f8",
+    "key": "f7",
     "command": "proKeybindings.detectProjectType"
   },
   {

@@ -4,7 +4,7 @@
     "command": "proKeybindings.openGitHubDesktop"
   },
   {
-    "key": "f9",
+    "key": "f8",
     "command": "proKeybindings.quickCommit"
   }
 ]
