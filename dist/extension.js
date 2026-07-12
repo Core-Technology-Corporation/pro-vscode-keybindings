@@ -327,7 +327,9 @@ var CommitMenuPty = class {
   }
   printTitleMenu() {
     this.writeEmitter.fire(`\r
-${ANSI_BOLD}Eleg\xED el t\xEDtulo del commit:${ANSI_RESET}\r
+${ANSI_BOLD}PASO 1 de 2 \u2014 \xBFQu\xE9 tipo de cambio hiciste?${ANSI_RESET}\r
+`);
+    this.writeEmitter.fire(`${ANSI_DIM}Esto va a ser el t\xEDtulo del commit (lo que ver\xE1 tu jefe/equipo en el historial de Git).${ANSI_RESET}\r
 \r
 `);
     commitTitles.forEach((title, i) => {
@@ -335,11 +337,13 @@ ${ANSI_BOLD}Eleg\xED el t\xEDtulo del commit:${ANSI_RESET}\r
 `);
     });
     this.writeEmitter.fire(`\r
-${ANSI_DIM}Escrib\xED un n\xFAmero y Enter:${ANSI_RESET} `);
+${ANSI_DIM}Escrib\xED el n\xFAmero de la opci\xF3n y presion\xE1 Enter:${ANSI_RESET} `);
   }
   printDescriptionMenu(descriptions) {
     this.writeEmitter.fire(`\r
-${ANSI_BOLD}Eleg\xED la descripci\xF3n del commit:${ANSI_RESET}\r
+${ANSI_BOLD}PASO 2 de 2 \u2014 Cont\xE1 con m\xE1s detalle qu\xE9 hiciste${ANSI_RESET}\r
+`);
+    this.writeEmitter.fire(`${ANSI_DIM}Esto va a ser la descripci\xF3n del commit, debajo del t\xEDtulo.${ANSI_RESET}\r
 \r
 `);
     descriptions.forEach((desc, i) => {
@@ -347,14 +351,14 @@ ${ANSI_BOLD}Eleg\xED la descripci\xF3n del commit:${ANSI_RESET}\r
 `);
     });
     this.writeEmitter.fire(`\r
-${ANSI_DIM}Escrib\xED un n\xFAmero y Enter:${ANSI_RESET} `);
+${ANSI_DIM}Escrib\xED el n\xFAmero de la opci\xF3n y presion\xE1 Enter:${ANSI_RESET} `);
   }
   onEnter() {
     const n = parseInt(this.buffer, 10);
     this.buffer = "";
     if (this.stage === "title") {
       if (!(n >= 1 && n <= commitTitles.length)) {
-        this.writeEmitter.fire(`${ANSI_DIM}Opci\xF3n inv\xE1lida.${ANSI_RESET} `);
+        this.writeEmitter.fire(`${ANSI_DIM}Ese n\xFAmero no existe, prob\xE1 de nuevo:${ANSI_RESET} `);
         return;
       }
       this.selectedTitle = commitTitles[n - 1];
@@ -371,19 +375,34 @@ ${ANSI_DIM}Escrib\xED un n\xFAmero y Enter:${ANSI_RESET} `);
     const type = this.selectedTitle.split(":")[0].trim();
     const descriptions = commitDescriptionsByType[type];
     if (!(n >= 1 && n <= descriptions.length)) {
-      this.writeEmitter.fire(`${ANSI_DIM}Opci\xF3n inv\xE1lida.${ANSI_RESET} `);
+      this.writeEmitter.fire(`${ANSI_DIM}Ese n\xFAmero no existe, prob\xE1 de nuevo:${ANSI_RESET} `);
       return;
     }
     this.finish(this.selectedTitle, descriptions[n - 1]);
   }
   async finish(title, description) {
-    this.repo.inputBox.value = description ? `${title}
+    const message = description ? `${title}
 
 ${description}` : title;
-    this.writeEmitter.fire(`\r
-${ANSI_BOLD}\u2714 Commit box actualizado.${ANSI_RESET}\r
-`);
+    this.repo.inputBox.value = message;
     await vscode.commands.executeCommand("workbench.view.scm");
+    try {
+      const hasStagedChanges = this.repo.state.indexChanges.length > 0;
+      await this.repo.commit(message, hasStagedChanges ? {} : { all: true });
+      this.writeEmitter.fire(`\r
+${ANSI_BOLD}\u2714 Commit realizado.${ANSI_RESET}\r
+`);
+    } catch (err) {
+      this.writeEmitter.fire(
+        `\r
+${ANSI_BOLD}\u2716 No se pudo hacer el commit: ${err?.message ?? err}${ANSI_RESET}\r
+`
+      );
+      this.writeEmitter.fire(
+        `${ANSI_DIM}El mensaje ya est\xE1 cargado en "Source Control" \u2014 revis\xE1 ah\xED y presion\xE1 "Commit" manualmente.${ANSI_RESET}\r
+`
+      );
+    }
     this.closeEmitter.fire(0);
   }
 };

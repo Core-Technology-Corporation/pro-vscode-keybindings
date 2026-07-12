@@ -309,19 +309,21 @@ class CommitMenuPty implements vscode.Pseudoterminal {
   }
 
   private printTitleMenu(): void {
-    this.writeEmitter.fire(`\r\n${ANSI_BOLD}Elegí el título del commit:${ANSI_RESET}\r\n\r\n`);
+    this.writeEmitter.fire(`\r\n${ANSI_BOLD}PASO 1 de 2 — ¿Qué tipo de cambio hiciste?${ANSI_RESET}\r\n`);
+    this.writeEmitter.fire(`${ANSI_DIM}Esto va a ser el título del commit (lo que verá tu jefe/equipo en el historial de Git).${ANSI_RESET}\r\n\r\n`);
     commitTitles.forEach((title, i) => {
       this.writeEmitter.fire(`${colorFor(title)}  ${i + 1}) ${title}${ANSI_RESET}\r\n`);
     });
-    this.writeEmitter.fire(`\r\n${ANSI_DIM}Escribí un número y Enter:${ANSI_RESET} `);
+    this.writeEmitter.fire(`\r\n${ANSI_DIM}Escribí el número de la opción y presioná Enter:${ANSI_RESET} `);
   }
 
   private printDescriptionMenu(descriptions: string[]): void {
-    this.writeEmitter.fire(`\r\n${ANSI_BOLD}Elegí la descripción del commit:${ANSI_RESET}\r\n\r\n`);
+    this.writeEmitter.fire(`\r\n${ANSI_BOLD}PASO 2 de 2 — Contá con más detalle qué hiciste${ANSI_RESET}\r\n`);
+    this.writeEmitter.fire(`${ANSI_DIM}Esto va a ser la descripción del commit, debajo del título.${ANSI_RESET}\r\n\r\n`);
     descriptions.forEach((desc, i) => {
       this.writeEmitter.fire(`${colorFor(desc)}  ${i + 1}) ${desc}${ANSI_RESET}\r\n`);
     });
-    this.writeEmitter.fire(`\r\n${ANSI_DIM}Escribí un número y Enter:${ANSI_RESET} `);
+    this.writeEmitter.fire(`\r\n${ANSI_DIM}Escribí el número de la opción y presioná Enter:${ANSI_RESET} `);
   }
 
   private onEnter(): void {
@@ -330,7 +332,7 @@ class CommitMenuPty implements vscode.Pseudoterminal {
 
     if (this.stage === 'title') {
       if (!(n >= 1 && n <= commitTitles.length)) {
-        this.writeEmitter.fire(`${ANSI_DIM}Opción inválida.${ANSI_RESET} `);
+        this.writeEmitter.fire(`${ANSI_DIM}Ese número no existe, probá de nuevo:${ANSI_RESET} `);
         return;
       }
       this.selectedTitle = commitTitles[n - 1];
@@ -348,16 +350,29 @@ class CommitMenuPty implements vscode.Pseudoterminal {
     const type = this.selectedTitle.split(':')[0].trim();
     const descriptions = commitDescriptionsByType[type];
     if (!(n >= 1 && n <= descriptions.length)) {
-      this.writeEmitter.fire(`${ANSI_DIM}Opción inválida.${ANSI_RESET} `);
+      this.writeEmitter.fire(`${ANSI_DIM}Ese número no existe, probá de nuevo:${ANSI_RESET} `);
       return;
     }
     this.finish(this.selectedTitle, descriptions[n - 1]);
   }
 
   private async finish(title: string, description?: string): Promise<void> {
-    this.repo.inputBox.value = description ? `${title}\n\n${description}` : title;
-    this.writeEmitter.fire(`\r\n${ANSI_BOLD}✔ Commit box actualizado.${ANSI_RESET}\r\n`);
+    const message = description ? `${title}\n\n${description}` : title;
+    this.repo.inputBox.value = message;
     await vscode.commands.executeCommand('workbench.view.scm');
+
+    try {
+      const hasStagedChanges = this.repo.state.indexChanges.length > 0;
+      await this.repo.commit(message, hasStagedChanges ? {} : { all: true });
+      this.writeEmitter.fire(`\r\n${ANSI_BOLD}✔ Commit realizado.${ANSI_RESET}\r\n`);
+    } catch (err: any) {
+      this.writeEmitter.fire(
+        `\r\n${ANSI_BOLD}✖ No se pudo hacer el commit: ${err?.message ?? err}${ANSI_RESET}\r\n`
+      );
+      this.writeEmitter.fire(
+        `${ANSI_DIM}El mensaje ya está cargado en "Source Control" — revisá ahí y presioná "Commit" manualmente.${ANSI_RESET}\r\n`
+      );
+    }
     this.closeEmitter.fire(0);
   }
 }

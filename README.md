@@ -19,7 +19,7 @@ Minimal, focused keyboard shortcuts for Visual Studio Code: comment/uncomment an
 | `F5` | `mysql.runSQLWithoutParse` | Run SQL *(only in `.sql`/SQL-language files)* |
 | `F10` | `proKeybindings.openGitHubDesktop` | Open the current workspace in GitHub Desktop — see below |
 | `F8` | `proKeybindings.quickCommit` | Fill the Source Control commit box (Summary: `chore: update`, Description: `working`) — see below |
-| `F9` | `proKeybindings.commitMessagePicker` | Pick a commit title, then a matching description, from curated lists — see below |
+| `F9` | `proKeybindings.commitMessagePicker` | Pick a commit title, then a matching description, and commit immediately — see below |
 | `F12` | `workbench.action.debug.stop` | Stop debugging *(while debugging)* |
 | `F12` | `proKeybindings.smartRun` | Smart Run quick pick *(when not debugging)* — see below |
 | `F7` | `proKeybindings.detectProjectType` | Print the detected project type to a terminal — see below |
@@ -38,7 +38,7 @@ Opens a quick pick with 5 options and runs the matching action:
 
 ### Commit Message Picker (`F9`)
 
-Opens a dedicated terminal (built on VS Code's `Pseudoterminal` API, not a shell) with a numbered menu of 9 curated commit titles ([Conventional Commits](https://www.conventionalcommits.org/) style: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `perf`, `chore`), each colored by type. Type a number and press Enter to pick a title; a second colored menu then shows matching descriptions for that same type (8 for `feat`, 8 for `fix`, 7 for `docs`, 7 for `refactor`, 5 for `test`, 7 for `chore`, 6 for `perf` — `style` has no second menu, so picking it fills only the title). Picking a description fills the Source Control commit box with title + description and focuses the Source Control view, ready to review and **Commit**.
+Opens a dedicated terminal (built on VS Code's `Pseudoterminal` API, not a shell) with a numbered menu of 9 curated commit titles ([Conventional Commits](https://www.conventionalcommits.org/) style: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `perf`, `chore`), each colored by type. Type a number and press Enter to pick a title; a second colored menu then shows matching descriptions for that same type (8 for `feat`, 8 for `fix`, 7 for `docs`, 7 for `refactor`, 5 for `test`, 7 for `chore`, 6 for `perf` — `style` has no second menu, so picking it fills only the title). Picking the description **commits immediately** — no need to press Commit yourself: it fills the Source Control commit box with title + description and calls `repository.commit()` (committing staged changes, or all changes if nothing was staged). If the commit fails (e.g. nothing to commit), the message stays in the commit box so you can review and commit manually.
 
 ### Detect Project Type (`F7`)
 
