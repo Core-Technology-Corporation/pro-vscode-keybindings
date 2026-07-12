@@ -138,10 +138,38 @@ async function cmdSmartRun(): Promise<void> {
   await pick?.run();
 }
 
+async function cmdOpenGitHubDesktop(): Promise<void> {
+  const root = getWorkspaceRoot();
+  if (!root) {
+    vscode.window.showWarningMessage('Pro Keybindings: no hay ninguna carpeta abierta.');
+    return;
+  }
+  runInTerminal(`github "${root}"`);
+}
+
+async function cmdQuickCommit(): Promise<void> {
+  const gitExtension = vscode.extensions.getExtension('vscode.git');
+  if (!gitExtension) {
+    vscode.window.showWarningMessage('Pro Keybindings: la extensión de Git de VS Code no está disponible.');
+    return;
+  }
+  const git = gitExtension.isActive ? gitExtension.exports : await gitExtension.activate();
+  const api = git.getAPI(1);
+  const repo = api.repositories[0];
+  if (!repo) {
+    vscode.window.showWarningMessage('Pro Keybindings: no se encontró ningún repositorio Git abierto.');
+    return;
+  }
+  repo.inputBox.value = 'update\n\nesto es una actualizacion';
+  await vscode.commands.executeCommand('workbench.view.scm');
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('proKeybindings.detectProjectType', cmdDetectProjectType),
-    vscode.commands.registerCommand('proKeybindings.smartRun', cmdSmartRun)
+    vscode.commands.registerCommand('proKeybindings.smartRun', cmdSmartRun),
+    vscode.commands.registerCommand('proKeybindings.quickCommit', cmdQuickCommit),
+    vscode.commands.registerCommand('proKeybindings.openGitHubDesktop', cmdOpenGitHubDesktop)
   );
 }
 

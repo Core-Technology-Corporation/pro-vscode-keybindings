@@ -59,9 +59,22 @@
       {
         "command": "proKeybindings.smartRun",
         "title": "Pro Keybindings: Smart Run (Debug / Web / Package)"
+      },
+      {
+        "command": "proKeybindings.quickCommit",
+        "title": "Pro Keybindings: Quick Commit (fill Summary/Description)"
+      },
+      {
+        "command": "proKeybindings.openGitHubDesktop",
+        "title": "Pro Keybindings: Open in GitHub Desktop"
       }
     ],
     "keybindings": [
+      {
+        "key": "f5",
+        "command": "mysql.runSQLWithoutParse",
+        "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
+      },
       {
         "key": "f9",
         "command": "workbench.action.debug.stop",
@@ -76,6 +89,24 @@
         "key": "ctrl+1",
         "command": "editor.action.commentLine",
         "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "key": "f4",
+        "command": "editor.action.joinLines",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "f3",
+        "command": "editor.toggleFold",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "f11",
+        "command": "proKeybindings.openGitHubDesktop"
+      },
+      {
+        "key": "f12",
+        "command": "proKeybindings.quickCommit"
       },
       {
         "key": "f10",

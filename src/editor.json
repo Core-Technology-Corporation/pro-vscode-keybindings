@@ -3,5 +3,15 @@
     "key": "ctrl+1",
     "command": "editor.action.commentLine",
     "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "f4",
+    "command": "editor.action.joinLines",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "f3",
+    "command": "editor.toggleFold",
+    "when": "editorTextFocus"
   }
 ]

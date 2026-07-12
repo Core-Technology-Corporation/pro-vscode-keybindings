@@ -1,0 +1,7 @@
+[
+  {
+    "key": "f5",
+    "command": "mysql.runSQLWithoutParse",
+    "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
+  }
+]

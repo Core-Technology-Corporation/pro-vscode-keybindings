@@ -160,10 +160,36 @@ async function cmdSmartRun() {
   });
   await pick?.run();
 }
+async function cmdOpenGitHubDesktop() {
+  const root = getWorkspaceRoot();
+  if (!root) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ninguna carpeta abierta.");
+    return;
+  }
+  runInTerminal(`github "${root}"`);
+}
+async function cmdQuickCommit() {
+  const gitExtension = vscode.extensions.getExtension("vscode.git");
+  if (!gitExtension) {
+    vscode.window.showWarningMessage("Pro Keybindings: la extensi\xF3n de Git de VS Code no est\xE1 disponible.");
+    return;
+  }
+  const git = gitExtension.isActive ? gitExtension.exports : await gitExtension.activate();
+  const api = git.getAPI(1);
+  const repo = api.repositories[0];
+  if (!repo) {
+    vscode.window.showWarningMessage("Pro Keybindings: no se encontr\xF3 ning\xFAn repositorio Git abierto.");
+    return;
+  }
+  repo.inputBox.value = "update\n\nesto es una actualizacion";
+  await vscode.commands.executeCommand("workbench.view.scm");
+}
 function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand("proKeybindings.detectProjectType", cmdDetectProjectType),
-    vscode.commands.registerCommand("proKeybindings.smartRun", cmdSmartRun)
+    vscode.commands.registerCommand("proKeybindings.smartRun", cmdSmartRun),
+    vscode.commands.registerCommand("proKeybindings.quickCommit", cmdQuickCommit),
+    vscode.commands.registerCommand("proKeybindings.openGitHubDesktop", cmdOpenGitHubDesktop)
   );
 }
 function deactivate() {
