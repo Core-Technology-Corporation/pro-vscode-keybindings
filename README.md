@@ -54,6 +54,20 @@ Opens a quick pick with 5 options and runs the matching action:
 - **React Native** → `npm start` in the terminal
 - **Extension** → `npx vsce package` in the terminal
 
+| Windows / Linux | macOS      | Acción                                | Soportado |
+| --------------- | ---------- | -------------------------------------- | --------- |
+| `Ctrl + 1`      | `Ctrl + 1` | Comment / uncomment line               | ✅ Sí      |
+| `F1`            | `F1`       | Open global `settings.json`            | ✅ Sí      |
+| `F2`            | `F2`       | Open global `keybindings.json`         | ✅ Sí      |
+| `F3`            | `F3`       | Toggle fold                            | ✅ Sí      |
+| `F4`            | `F4`       | Join lines                             | ✅ Sí      |
+| `F5`            | `F5`       | Run SQL *(only in `.sql` files)*       | ✅ Sí      |
+| `F7`            | `F7`       | Detect project type                    | ✅ Sí      |
+| `F8`            | `F8`       | Quick Commit                           | ✅ Sí      |
+| `F9`            | `F9`       | Commit Message Picker (commit + push)  | ✅ Sí      |
+| `F10`           | `F10`      | Open in GitHub Desktop                 | ✅ Sí      |
+| `F12`           | `F12`      | Stop debugging / Smart Run             | ✅ Sí      |
+
 ## Installation
 
 Install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/vscode) — search for **Pro VSCode Keybindings**.
