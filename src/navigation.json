@@ -1,26 +1,14 @@
 [
   {
+    "key": "f10",
+    "command": "proKeybindings.detectProjectType"
+  },
+  {
+    "key": "f2",
+    "command": "workbench.action.openGlobalKeybindingsFile"
+  },
+  {
     "key": "f1",
     "command": "workbench.action.openSettingsJson"
-  },
-  {
-    "key": "ctrl+alt+z",
-    "command": "workbench.action.toggleZenMode"
-  },
-  {
-    "key": "ctrl+alt+\\",
-    "command": "workbench.action.splitEditor"
-  },
-  {
-    "key": "ctrl+alt+,",
-    "command": "workbench.action.togglePanel"
-  },
-  {
-    "key": "ctrl+alt+shift+w",
-    "command": "workbench.action.closeAllEditors"
-  },
-  {
-    "key": "ctrl+alt+shift+t",
-    "command": "workbench.action.reopenClosedEditor"
   }
 ]

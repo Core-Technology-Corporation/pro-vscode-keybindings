@@ -1,47 +1,12 @@
 [
   {
-    "key": "ctrl+7",
-    "command": "workbench.action.debug.start",
-    "when": "!inDebugMode"
-  },
-  {
-    "key": "ctrl+8",
+    "key": "f9",
     "command": "workbench.action.debug.stop",
     "when": "inDebugMode"
   },
   {
-    "key": "ctrl+9",
-    "command": "workbench.action.debug.stepOver",
-    "when": "inDebugMode"
-  },
-  {
-    "key": "ctrl+0",
-    "command": "editor.debug.action.toggleBreakpoint",
-    "when": "editorTextFocus"
-  },
-  {
-    "key": "ctrl+0",
-    "command": "proKeybindings.detectProjectType",
-    "when": "!editorTextFocus"
-  },
-  {
-    "key": "ctrl+8",
+    "key": "f9",
     "command": "proKeybindings.smartRun",
     "when": "!inDebugMode"
-  },
-  {
-    "key": "ctrl+alt+shift+r",
-    "command": "workbench.action.debug.restart",
-    "when": "inDebugMode"
-  },
-  {
-    "key": "ctrl+alt+shift+o",
-    "command": "workbench.action.debug.stepOut",
-    "when": "inDebugMode"
-  },
-  {
-    "key": "ctrl+alt+shift+i",
-    "command": "workbench.action.debug.stepInto",
-    "when": "inDebugMode"
   }
 ]
