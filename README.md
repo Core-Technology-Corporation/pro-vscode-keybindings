@@ -4,16 +4,21 @@ Minimal, focused keyboard shortcuts for Visual Studio Code: comment/uncomment an
 
 ## Features
 
-- ⚡ 11 shortcuts, 12 bindings total — no clutter
+- ⚡ 16 shortcuts, 17 bindings total — no clutter
 - 🧠 **`F12` is context-aware**: stops the debugger while debugging, otherwise opens a quick pick to run the project (Live Server, `npm run web`, debug, `npm start`, `vsce package`)
 
-> Note: `F1` overrides the default Command Palette shortcut. `F2` overrides `editor.action.rename` (Rename Symbol) while the editor is focused. `F3` overrides VS Code's default `editor.action.nextMatchFindAction` (Find Next) while the editor is focused. `F5` requires a MySQL/database client extension that contributes `mysql.runSQLWithoutParse` (e.g. [Database Client](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-mysql-client2)) — it's a no-op otherwise, and only fires in `.sql`/SQL-language files, so it won't fight with VS Code's default "Start Debugging" outside those files. `F10` overrides VS Code's default `workbench.action.debug.stepOver` (Step Over) while debugging, since this binding has no `when` restriction. `F12` overrides `editor.action.revealDefinition` (Go to Definition) while the editor is focused.
+> Note: `Ctrl+A`, `Shift+Alt+↓/↑` and `Alt+↓/↑` are identical to VS Code's own defaults — they're declared explicitly here just so they show up as part of this extension. `F1` overrides the default Command Palette shortcut. `F2` overrides `editor.action.rename` (Rename Symbol) while the editor is focused. `F3` overrides VS Code's default `editor.action.nextMatchFindAction` (Find Next) while the editor is focused. `F5` requires a MySQL/database client extension that contributes `mysql.runSQLWithoutParse` (e.g. [Database Client](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-mysql-client2)) — it's a no-op otherwise, and only fires in `.sql`/SQL-language files, so it won't fight with VS Code's default "Start Debugging" outside those files. `F10` overrides VS Code's default `workbench.action.debug.stepOver` (Step Over) while debugging, since this binding has no `when` restriction. `F12` overrides `editor.action.revealDefinition` (Go to Definition) while the editor is focused.
 
 ## Keybindings
 
 | Key | Command | Action |
 | --- | --- | --- |
 | `Ctrl+1` | `editor.action.commentLine` | Comment / uncomment line |
+| `Ctrl+A` | `editor.action.selectAll` | Select all content in the file |
+| `Shift+Alt+↓` | `editor.action.copyLinesDownAction` | Duplicate line / selection down |
+| `Shift+Alt+↑` | `editor.action.copyLinesUpAction` | Duplicate line / selection up |
+| `Alt+↓` | `editor.action.moveLinesDownAction` | Move line / selection down |
+| `Alt+↑` | `editor.action.moveLinesUpAction` | Move line / selection up |
 | `F1` | `workbench.action.openSettingsJson` | Open your global `settings.json` |
 | `F2` | `workbench.action.openGlobalKeybindingsFile` | Open your global `keybindings.json` |
 | `F3` | `editor.toggleFold` | Toggle fold (collapse/expand code block) |
@@ -67,6 +72,14 @@ Opens a quick pick with 5 options and runs the matching action:
 | `F9`            | `F9`       | Commit Message Picker (commit + push)  | ✅ Sí      |
 | `F10`           | `F10`      | Open in GitHub Desktop                 | ✅ Sí      |
 | `F12`           | `F12`      | Stop debugging / Smart Run             | ✅ Sí      |
+
+| Windows / Ubuntu (Linux) | macOS                 | Acción                                                     |
+| ------------------------ | --------------------- | ----------------------------------------------------------- |
+| `Ctrl + A`                | `Cmd + A`             | **Seleccionar todo** el contenido del archivo.               |
+| `Shift + Alt + ↓`         | `Shift + Option + ↓`  | **Duplicar la línea** o la selección hacia abajo.            |
+| `Shift + Alt + ↑`         | `Shift + Option + ↑`  | **Duplicar la línea** o la selección hacia arriba.           |
+| `Alt + ↓`                 | `Option + ↓`          | **Mover la línea** o la selección una línea hacia abajo.     |
+| `Alt + ↑`                 | `Option + ↑`          | **Mover la línea** o la selección una línea hacia arriba.    |
 
 ## Installation
 

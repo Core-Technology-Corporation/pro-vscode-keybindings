@@ -3,7 +3,7 @@
   Installs deps, builds the extension and launches a VS Code Extension
   Development Host window with it loaded, ready to test.
 
-.EXAMPLE
+  .EXAMPLE
   ./scripts/test_local.ps1
 #>
 
