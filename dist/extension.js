@@ -181,7 +181,7 @@ async function cmdQuickCommit() {
     vscode.window.showWarningMessage("Pro Keybindings: no se encontr\xF3 ning\xFAn repositorio Git abierto.");
     return;
   }
-  repo.inputBox.value = "update\n\nesto es una actualizacion";
+  repo.inputBox.value = "chore: update\n\nMinor changes and improvements.";
   await vscode.commands.executeCommand("workbench.view.scm");
 }
 function activate(context) {

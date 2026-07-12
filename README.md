@@ -5,9 +5,9 @@ Minimal, focused keyboard shortcuts for Visual Studio Code: comment/uncomment an
 ## Features
 
 - ⚡ 10 shortcuts, 11 bindings total — no clutter
-- 🧠 **`F9` is context-aware**: stops the debugger while debugging, otherwise opens a quick pick to run the project (Live Server, `npm run web`, debug, `npm start`, `vsce package`)
+- 🧠 **`F12` is context-aware**: stops the debugger while debugging, otherwise opens a quick pick to run the project (Live Server, `npm run web`, debug, `npm start`, `vsce package`)
 
-> Note: `F11` overrides VS Code's default `workbench.action.toggleFullScreen` (Toggle Full Screen). `F5` requires a MySQL/database client extension that contributes `mysql.runSQLWithoutParse` (e.g. [Database Client](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-mysql-client2)) — it's a no-op otherwise, and only fires in `.sql`/SQL-language files, so it won't fight with VS Code's default "Start Debugging" outside those files. `F3` overrides VS Code's default `editor.action.nextMatchFindAction` (Find Next) while the editor is focused. `F2` overrides `editor.action.rename` (Rename Symbol) while the editor is focused. `F1` overrides the default Command Palette shortcut.
+> Note: `F8` overrides VS Code's default `editor.action.marker.next` (Go to Next Problem). `F10` overrides VS Code's default `workbench.action.debug.stepOver` (Step Over) while debugging, since this binding has no `when` restriction. `F5` requires a MySQL/database client extension that contributes `mysql.runSQLWithoutParse` (e.g. [Database Client](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-mysql-client2)) — it's a no-op otherwise, and only fires in `.sql`/SQL-language files, so it won't fight with VS Code's default "Start Debugging" outside those files. `F3` overrides VS Code's default `editor.action.nextMatchFindAction` (Find Next) while the editor is focused. `F2` overrides `editor.action.rename` (Rename Symbol) while the editor is focused. `F1` overrides the default Command Palette shortcut. `F12` overrides `editor.action.revealDefinition` (Go to Definition) while the editor is focused.
 
 ## Keybindings
 
@@ -17,15 +17,15 @@ Minimal, focused keyboard shortcuts for Visual Studio Code: comment/uncomment an
 | `F4` | `editor.action.joinLines` | Join lines |
 | `F3` | `editor.toggleFold` | Toggle fold (collapse/expand code block) |
 | `F5` | `mysql.runSQLWithoutParse` | Run SQL *(only in `.sql`/SQL-language files)* |
-| `F11` | `proKeybindings.openGitHubDesktop` | Open the current workspace in GitHub Desktop — see below |
-| `F12` | `proKeybindings.quickCommit` | Fill the Source Control commit box (Summary: `update`, Description: `esto es una actualizacion`) — see below |
-| `F9` | `workbench.action.debug.stop` | Stop debugging *(while debugging)* |
-| `F9` | `proKeybindings.smartRun` | Smart Run quick pick *(when not debugging)* — see below |
-| `F10` | `proKeybindings.detectProjectType` | Print the detected project type to a terminal — see below |
+| `F10` | `proKeybindings.openGitHubDesktop` | Open the current workspace in GitHub Desktop — see below |
+| `F9` | `proKeybindings.quickCommit` | Fill the Source Control commit box (Summary: `chore: update`, Description: `Minor changes and improvements.`) — see below |
+| `F12` | `workbench.action.debug.stop` | Stop debugging *(while debugging)* |
+| `F12` | `proKeybindings.smartRun` | Smart Run quick pick *(when not debugging)* — see below |
+| `F8` | `proKeybindings.detectProjectType` | Print the detected project type to a terminal — see below |
 | `F2` | `workbench.action.openGlobalKeybindingsFile` | Open your global `keybindings.json` |
 | `F1` | `workbench.action.openSettingsJson` | Open your global `settings.json` |
 
-### Smart Run (`F9`, when not debugging)
+### Smart Run (`F12`, when not debugging)
 
 Opens a quick pick with 5 options and runs the matching action:
 
@@ -35,17 +35,17 @@ Opens a quick pick with 5 options and runs the matching action:
 - **React Native** → `npm start` in the terminal
 - **Extension** → `npx vsce package` in the terminal
 
-### Detect Project Type (`F10`)
+### Detect Project Type (`F8`)
 
 Inspects the open workspace folder (`package.json` dependencies, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`/`build.gradle`, loose `.java` files, `index.html`) and prints the detected type (React, React Native, Next.js, Vue, Angular, Node/Express, Python, Go, Rust, Java, VS Code Extension, or static HTML/CSS/JS) to a dedicated terminal.
 
-### Open in GitHub Desktop (`F11`)
+### Open in GitHub Desktop (`F10`)
 
 Runs `github "<workspace root>"` in a dedicated terminal, which opens the current folder in the [GitHub Desktop](https://desktop.github.com/) app (requires GitHub Desktop installed with its `github` shell command available on PATH — it's added automatically by the Windows/Mac installer). GitHub Desktop doesn't expose a remote-control API, so this only opens the app; you still press **Pull origin** yourself inside it.
 
-### Quick Commit (`F12`)
+### Quick Commit (`F9`)
 
-Sets the Source Control commit message for the first open Git repository (`repository.inputBox.value`) to `update` as the summary line and `esto es una actualizacion` as the description, then focuses the Source Control view — so you only need to review and press **Commit**. Does nothing (with a warning) if the built-in Git extension isn't active or no repository is open.
+Sets the Source Control commit message for the first open Git repository (`repository.inputBox.value`) to `chore: update` as the summary line (following [Conventional Commits](https://www.conventionalcommits.org/)) and `Minor changes and improvements.` as the description, then focuses the Source Control view — so you only need to review and press **Commit**. Does nothing (with a warning) if the built-in Git extension isn't active or no repository is open.
 
 ## Installation
 

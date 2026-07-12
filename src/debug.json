@@ -1,11 +1,11 @@
 [
   {
-    "key": "f9",
+    "key": "f12",
     "command": "workbench.action.debug.stop",
     "when": "inDebugMode"
   },
   {
-    "key": "f9",
+    "key": "f12",
     "command": "proKeybindings.smartRun",
     "when": "!inDebugMode"
   }

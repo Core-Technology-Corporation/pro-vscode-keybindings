@@ -5,12 +5,12 @@
     "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
   },
   {
-    "key": "f9",
+    "key": "f12",
     "command": "workbench.action.debug.stop",
     "when": "inDebugMode"
   },
   {
-    "key": "f9",
+    "key": "f12",
     "command": "proKeybindings.smartRun",
     "when": "!inDebugMode"
   },
@@ -30,15 +30,15 @@
     "when": "editorTextFocus"
   },
   {
-    "key": "f11",
+    "key": "f10",
     "command": "proKeybindings.openGitHubDesktop"
   },
   {
-    "key": "f12",
+    "key": "f9",
     "command": "proKeybindings.quickCommit"
   },
   {
-    "key": "f10",
+    "key": "f8",
     "command": "proKeybindings.detectProjectType"
   },
   {

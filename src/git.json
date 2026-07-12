@@ -1,10 +1,10 @@
 [
   {
-    "key": "f11",
+    "key": "f10",
     "command": "proKeybindings.openGitHubDesktop"
   },
   {
-    "key": "f12",
+    "key": "f9",
     "command": "proKeybindings.quickCommit"
   }
 ]
