@@ -402,6 +402,20 @@ ${ANSI_BOLD}\u2716 No se pudo hacer el commit: ${err?.message ?? err}${ANSI_RESE
         `${ANSI_DIM}El mensaje ya est\xE1 cargado en "Source Control" \u2014 revis\xE1 ah\xED y presion\xE1 "Commit" manualmente.${ANSI_RESET}\r
 `
       );
+      this.closeEmitter.fire(0);
+      return;
+    }
+    try {
+      await this.repo.push();
+      this.writeEmitter.fire(`${ANSI_BOLD}\u2714 Push realizado.${ANSI_RESET}\r
+`);
+    } catch (err) {
+      this.writeEmitter.fire(
+        `${ANSI_DIM}El commit se hizo, pero el push fall\xF3: ${err?.message ?? err}${ANSI_RESET}\r
+`
+      );
+      this.writeEmitter.fire(`${ANSI_DIM}Hac\xE9 push manualmente desde "Source Control" cuando quieras.${ANSI_RESET}\r
+`);
     }
     this.closeEmitter.fire(0);
   }

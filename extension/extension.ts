@@ -372,6 +372,18 @@ class CommitMenuPty implements vscode.Pseudoterminal {
       this.writeEmitter.fire(
         `${ANSI_DIM}El mensaje ya está cargado en "Source Control" — revisá ahí y presioná "Commit" manualmente.${ANSI_RESET}\r\n`
       );
+      this.closeEmitter.fire(0);
+      return;
+    }
+
+    try {
+      await this.repo.push();
+      this.writeEmitter.fire(`${ANSI_BOLD}✔ Push realizado.${ANSI_RESET}\r\n`);
+    } catch (err: any) {
+      this.writeEmitter.fire(
+        `${ANSI_DIM}El commit se hizo, pero el push falló: ${err?.message ?? err}${ANSI_RESET}\r\n`
+      );
+      this.writeEmitter.fire(`${ANSI_DIM}Hacé push manualmente desde "Source Control" cuando quieras.${ANSI_RESET}\r\n`);
     }
     this.closeEmitter.fire(0);
   }
