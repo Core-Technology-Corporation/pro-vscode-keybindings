@@ -35,6 +35,10 @@ Minimal keyboard shortcuts for Visual Studio Code, plus a few smart commands for
 
 > ⚠️ `Ctrl+F9` pushes to the remote with no confirmation — double-check your branch before using it.
 
+## Editor context menu
+
+**🧹 Format with consoles** — right-click inside a JS/TS/JSX/TSX file and it inserts a `console.log` right before every `return` statement in the file, so you can trace which branch actually executes at runtime. Safe to run again: lines already instrumented are skipped.
+
 ## Installation
 
 Install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/vscode) — search for **Pro VSCode Keybindings**.
@@ -49,7 +53,7 @@ npm run watch     # rebuild extension.js on change
 
 - **Add/change a shortcut** → edit the matching file under `src/*.json`, then `npm run build`. The build fails if two entries share a key.
 - **Change smart-command logic** → edit `extension/extension.ts`, then `npm run build`.
-- Try it out with `F5` (Extension Development Host) or `./scripts/test_local.ps1`.
+- Try it out with `F5` (Extension Development Host), or `./scripts/test_local.sh` (Linux/macOS) / `./scripts/test_local.ps1` (Windows/PowerShell).
 
 `src/*.json` are the source of truth — `scripts/build.js` merges them into `dist/keybindings.json` and `package.json`'s `contributes.keybindings`, since VS Code only reads keybindings from `package.json`.
 

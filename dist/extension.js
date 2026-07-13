@@ -429,13 +429,175 @@ async function cmdCommitMessagePicker() {
   const terminal = vscode.window.createTerminal({ name: "Commit Message", pty });
   terminal.show();
 }
+var CONSOLE_MARKER = "[ProKeybindings]";
+var RETURN_REGEX = /^(\s*)return\b/;
+var ELSE_IF_PREFIX = /^(\s*)\}?\s*else if\s*\(/;
+var IF_PREFIX = /^(\s*)\}?\s*if\s*\(/;
+var ELSE_PREFIX = /^(\s*)\}?\s*else\b/;
+var CASE_REGEX = /^(\s*)case\s+(.+):\s*$/;
+var DEFAULT_REGEX = /^(\s*)default\s*:\s*$/;
+var GET_PARAM_REGEX = /SNavigation\.getParam\(\s*['"`]([^'"`]+)['"`]/;
+var CATCH_PREFIX = /^(\s*)\}?\s*catch\s*\(/;
+function findMatchingParenEnd(text, fromIndex) {
+  let depth = 1;
+  for (let idx = fromIndex; idx < text.length; idx++) {
+    if (text[idx] === "(") {
+      depth++;
+    } else if (text[idx] === ")") {
+      depth--;
+      if (depth === 0) {
+        return idx;
+      }
+    }
+  }
+  return -1;
+}
+function matchIfLike(text, prefixRegex) {
+  const m = text.match(prefixRegex);
+  if (!m) {
+    return void 0;
+  }
+  const openIndex = m[0].length;
+  const closeIndex = findMatchingParenEnd(text, openIndex);
+  if (closeIndex === -1) {
+    return void 0;
+  }
+  return {
+    indent: m[1],
+    condition: text.slice(openIndex, closeIndex).trim(),
+    rest: text.slice(closeIndex + 1).trim()
+  };
+}
+function matchBranch(text) {
+  const elseIf = matchIfLike(text, ELSE_IF_PREFIX);
+  if (elseIf) {
+    return { indent: elseIf.indent, label: `else if (${elseIf.condition})`, isBlock: elseIf.rest === "" || elseIf.rest === "{" };
+  }
+  const ifLike = matchIfLike(text, IF_PREFIX);
+  if (ifLike) {
+    return { indent: ifLike.indent, label: `if (${ifLike.condition})`, isBlock: ifLike.rest === "" || ifLike.rest === "{" };
+  }
+  const elseMatch = text.match(ELSE_PREFIX);
+  if (elseMatch) {
+    const rest = text.slice(elseMatch[0].length).trim();
+    if (!/^if\b/.test(rest)) {
+      return { indent: elseMatch[1], label: "else", isBlock: rest === "" || rest === "{" };
+    }
+  }
+  const caseMatch = text.match(CASE_REGEX);
+  if (caseMatch) {
+    return { indent: caseMatch[1], label: `case ${caseMatch[2].trim()}`, isBlock: true };
+  }
+  const defaultMatch = text.match(DEFAULT_REGEX);
+  if (defaultMatch) {
+    return { indent: defaultMatch[1], label: "default", isBlock: true };
+  }
+  return void 0;
+}
+function matchCatch(text) {
+  const m = text.match(CATCH_PREFIX);
+  if (!m) {
+    return void 0;
+  }
+  const openIndex = m[0].length;
+  const closeIndex = findMatchingParenEnd(text, openIndex);
+  if (closeIndex === -1) {
+    return void 0;
+  }
+  const inside = text.slice(openIndex, closeIndex).trim();
+  if (!inside) {
+    return void 0;
+  }
+  const paramName = inside.split(":")[0].trim();
+  if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(paramName)) {
+    return void 0;
+  }
+  const rest = text.slice(closeIndex + 1).trim();
+  return { indent: m[1], paramName, isBlock: rest === "" || rest === "{" };
+}
+async function cmdFormatWithConsoles() {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ning\xFAn editor activo.");
+    return;
+  }
+  const doc = editor.document;
+  const fileName = path.basename(doc.fileName);
+  const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+  const isOwnConsoleLine = (line) => {
+    const t = line.trim();
+    return t.startsWith("console.") && t.includes(CONSOLE_MARKER);
+  };
+  const originalLines = doc.getText().split(/\r\n|\n/);
+  const lines = originalLines.filter((line) => !isOwnConsoleLine(line));
+  const removedCount = originalLines.length - lines.length;
+  const inserts = [];
+  const placeStatement = (i, ownIndent, isBlock, statement) => {
+    if (!isBlock) {
+      inserts.push({ targetLine: i, indent: ownIndent, statement });
+      return;
+    }
+    const nextIndex = i + 1;
+    if (nextIndex >= lines.length) {
+      return;
+    }
+    const nextText = lines[nextIndex];
+    const nextIndent = nextText.slice(0, nextText.length - nextText.trimStart().length);
+    if (!nextText.trim() || nextIndent.length <= ownIndent.length) {
+      return;
+    }
+    inserts.push({ targetLine: nextIndex, indent: nextIndent, statement });
+  };
+  for (let i = 0; i < lines.length; i++) {
+    const text = lines[i];
+    const trimmed = text.trimStart();
+    if (!trimmed || trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) {
+      continue;
+    }
+    const returnMatch = text.match(RETURN_REGEX);
+    if (returnMatch) {
+      const message = `${CONSOLE_MARKER} ${fileName}:${i + 1} -> render`;
+      inserts.push({ targetLine: i, indent: returnMatch[1], statement: `console.log(${JSON.stringify(message)});` });
+      continue;
+    }
+    const catchMatch = matchCatch(text);
+    if (catchMatch) {
+      const statement2 = `console.error(${JSON.stringify(`${CONSOLE_MARKER} Error al cargar los datos:`)}, ${catchMatch.paramName});`;
+      placeStatement(i, catchMatch.indent, catchMatch.isBlock, statement2);
+      continue;
+    }
+    const branch = matchBranch(text);
+    if (!branch) {
+      continue;
+    }
+    const getParamMatch = branch.label.match(GET_PARAM_REGEX);
+    const statement = getParamMatch ? `console.error(${JSON.stringify(`${CONSOLE_MARKER} Error no se encontr\xF3 el par\xE1metro: ${getParamMatch[1]}`)});` : `console.warn(${JSON.stringify(`${CONSOLE_MARKER} ${fileName}:${i + 1} -> ${branch.label}`)});`;
+    placeStatement(i, branch.indent, branch.isBlock, statement);
+  }
+  if (inserts.length === 0 && removedCount === 0) {
+    vscode.window.showInformationMessage('Pro Keybindings: no se encontraron "return" ni condiciones para instrumentar.');
+    return;
+  }
+  inserts.sort((a, b) => b.targetLine - a.targetLine);
+  for (const ins of inserts) {
+    lines.splice(ins.targetLine, 0, `${ins.indent}${ins.statement}`);
+  }
+  const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
+  const workspaceEdit = new vscode.WorkspaceEdit();
+  workspaceEdit.replace(doc.uri, fullRange, lines.join(eol));
+  await vscode.workspace.applyEdit(workspaceEdit);
+  vscode.window.showInformationMessage(
+    `Pro Keybindings: ${removedCount} console.* anteriores eliminados, ${inserts.length} nuevos agregados.`
+  );
+}
 function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand("proKeybindings.detectProjectType", cmdDetectProjectType),
     vscode.commands.registerCommand("proKeybindings.smartRun", cmdSmartRun),
     vscode.commands.registerCommand("proKeybindings.quickCommit", cmdQuickCommit),
     vscode.commands.registerCommand("proKeybindings.openGitHubDesktop", cmdOpenGitHubDesktop),
-    vscode.commands.registerCommand("proKeybindings.commitMessagePicker", cmdCommitMessagePicker)
+    vscode.commands.registerCommand("proKeybindings.commitMessagePicker", cmdCommitMessagePicker),
+    vscode.commands.registerCommand("proKeybindings.formatWithConsoles", cmdFormatWithConsoles)
   );
 }
 function deactivate() {

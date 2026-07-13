@@ -71,8 +71,21 @@
       {
         "command": "proKeybindings.commitMessagePicker",
         "title": "Pro Keybindings: Commit Message Picker"
+      },
+      {
+        "command": "proKeybindings.formatWithConsoles",
+        "title": "🧹 Formatear con consoles"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "proKeybindings.formatWithConsoles",
+          "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/",
+          "group": "1_modification"
+        }
+      ]
+    },
     "keybindings": [
       {
         "key": "ctrl+f5",

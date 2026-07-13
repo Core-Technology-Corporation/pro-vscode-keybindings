@@ -29,6 +29,10 @@ Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteli
 
 > ⚠️ `Ctrl+F9` hace push al remoto sin pedir confirmación — revisá en qué rama estás antes de usarlo.
 
+## Menú contextual del editor
+
+**🧹 Formatear con consoles** — hacé click derecho dentro de un archivo JS/TS/JSX/TSX y agrega un `console.log` justo antes de cada `return` del archivo, para que puedas rastrear qué rama se ejecuta realmente en tiempo de ejecución. Se puede ejecutar de nuevo sin problema: las líneas ya instrumentadas se saltean.
+
 ## Instalación
 
 Instalala desde el [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/vscode) — buscá **Pro VSCode Keybindings**.
@@ -43,7 +47,7 @@ npm run watch     # recompila extension.js en cada cambio
 
 - **Agregar/cambiar un atajo** → editá el archivo correspondiente en `src/*.json`, después `npm run build`. El build falla si dos entradas comparten la misma tecla.
 - **Cambiar la lógica de los comandos inteligentes** → editá `extension/extension.ts`, después `npm run build`.
-- Probalo con `F5` (Extension Development Host) o con `./scripts/test_local.ps1`.
+- Probalo con `F5` (Extension Development Host), o con `./scripts/test_local.sh` (Linux/macOS) / `./scripts/test_local.ps1` (Windows/PowerShell).
 
 `src/*.json` son la fuente de verdad — `scripts/build.js` los combina en `dist/keybindings.json` y en `contributes.keybindings` de `package.json`, ya que VS Code solo lee keybindings desde `package.json`.
 
