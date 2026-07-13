@@ -1,14 +1,14 @@
 [
   {
-    "key": "f10",
+    "key": "ctrl+f10",
     "command": "proKeybindings.openGitHubDesktop"
   },
   {
-    "key": "f8",
+    "key": "ctrl+f8",
     "command": "proKeybindings.quickCommit"
   },
   {
-    "key": "f9",
+    "key": "ctrl+f9",
     "command": "proKeybindings.commitMessagePicker"
   }
 ]

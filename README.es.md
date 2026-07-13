@@ -12,24 +12,22 @@ Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteli
 | `Ctrl+A` | Seleccionar todo |
 | `Shift+Alt+↓` / `↑` | Duplicar línea hacia abajo / arriba |
 | `Alt+↓` / `↑` | Mover línea hacia abajo / arriba |
-| `F1` | Abrir tu `settings.json` global |
-| `F2` | Abrir tu `keybindings.json` global |
-| `F3` | Plegar/desplegar bloque de código |
-| `F4` | Unir líneas |
-| `F5` | Ejecutar SQL *(solo en archivos `.sql`, requiere una extensión de cliente de base de datos)* |
-| `F7` | Detectar el tipo de proyecto → lo imprime en una terminal |
-| `F8` | Quick Commit → completa el mensaje de commit con `chore: update` |
-| `F9` | Commit Message Picker → elegís título + descripción, y **hace commit y push** |
-| `F10` | Abrir la carpeta actual en GitHub Desktop |
-| `F12` | Detener el debug *(mientras debuggeás)* / Smart Run *(en otro caso)* |
+| `Ctrl+F1` | Abrir tu `settings.json` global |
+| `Ctrl+F2` | Abrir tu `keybindings.json` global |
+| `Ctrl+F3` | Plegar/desplegar bloque de código |
+| `Ctrl+F4` | Unir líneas |
+| `Ctrl+F5` | Ejecutar SQL *(solo en archivos `.sql`, requiere una extensión de cliente de base de datos)* |
+| `Ctrl+F7` | Detectar el tipo de proyecto → lo imprime en una terminal |
+| `Ctrl+F8` | Quick Commit → completa el mensaje de commit con `chore: update` |
+| `Ctrl+F9` | Commit Message Picker → elegís título + descripción, y **hace commit y push** |
+| `Ctrl+F10` | Abrir la carpeta actual en GitHub Desktop |
+| `Ctrl+F12` | Detener el debug *(mientras debuggeás)* / Smart Run *(en otro caso)* |
 
-**Smart Run (`F12`)** abre un selector para correr el proyecto de la forma correcta: Live Server para HTML, `npm run web` para React, Start Debugging para Java, `npm start` para React Native, `vsce package` para una extensión de VS Code.
+**Smart Run (`Ctrl+F12`)** abre un selector para correr el proyecto de la forma correcta: Live Server para HTML, `npm run web` para React, Start Debugging para Java, `npm start` para React Native, `vsce package` para una extensión de VS Code.
 
-**Commit Message Picker (`F9`)** abre un menú numerado y coloreado directamente en una terminal — elegís un título estilo [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, etc.), después una descripción a juego, y hace commit y push de inmediato.
+**Commit Message Picker (`Ctrl+F9`)** abre un menú numerado y coloreado directamente en una terminal — elegís un título estilo [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, etc.), después una descripción a juego, y hace commit y push de inmediato.
 
-> ⚠️ `F9` hace push al remoto sin pedir confirmación — revisá en qué rama estás antes de usarlo.
-
-Atajos que reemplazan comportamiento nativo de VS Code: `F1` reemplaza la Command Palette, `F2` reemplaza Rename Symbol, `F3` reemplaza Find Next, `F10` reemplaza Step Over (mientras debuggeás), `F12` reemplaza Go to Definition.
+> ⚠️ `Ctrl+F9` hace push al remoto sin pedir confirmación — revisá en qué rama estás antes de usarlo.
 
 ## Instalación
 

@@ -5,12 +5,12 @@
     "when": "editorTextFocus && !editorReadonly"
   },
   {
-    "key": "f4",
+    "key": "ctrl+f4",
     "command": "editor.action.joinLines",
     "when": "editorTextFocus"
   },
   {
-    "key": "f3",
+    "key": "ctrl+f3",
     "command": "editor.toggleFold",
     "when": "editorTextFocus"
   },

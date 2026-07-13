@@ -75,17 +75,17 @@
     ],
     "keybindings": [
       {
-        "key": "f5",
+        "key": "ctrl+f5",
         "command": "mysql.runSQLWithoutParse",
         "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
       },
       {
-        "key": "f12",
+        "key": "ctrl+f12",
         "command": "workbench.action.debug.stop",
         "when": "inDebugMode"
       },
       {
-        "key": "f12",
+        "key": "ctrl+f12",
         "command": "proKeybindings.smartRun",
         "when": "!inDebugMode"
       },
@@ -95,12 +95,12 @@
         "when": "editorTextFocus && !editorReadonly"
       },
       {
-        "key": "f4",
+        "key": "ctrl+f4",
         "command": "editor.action.joinLines",
         "when": "editorTextFocus"
       },
       {
-        "key": "f3",
+        "key": "ctrl+f3",
         "command": "editor.toggleFold",
         "when": "editorTextFocus"
       },
@@ -130,27 +130,27 @@
         "when": "editorTextFocus && !editorReadonly"
       },
       {
-        "key": "f10",
+        "key": "ctrl+f10",
         "command": "proKeybindings.openGitHubDesktop"
       },
       {
-        "key": "f8",
+        "key": "ctrl+f8",
         "command": "proKeybindings.quickCommit"
       },
       {
-        "key": "f9",
+        "key": "ctrl+f9",
         "command": "proKeybindings.commitMessagePicker"
       },
       {
-        "key": "f7",
+        "key": "ctrl+f7",
         "command": "proKeybindings.detectProjectType"
       },
       {
-        "key": "f2",
+        "key": "ctrl+f2",
         "command": "workbench.action.openGlobalKeybindingsFile"
       },
       {
-        "key": "f1",
+        "key": "ctrl+f1",
         "command": "workbench.action.openSettingsJson"
       }
     ]
