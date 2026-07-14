@@ -10,6 +10,9 @@
     "vscode": "^1.93.0"
   },
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "categories": [
     "Keymaps",
     "Other"
@@ -48,7 +51,11 @@
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.93.0",
     "esbuild": "^0.24.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "vsce": "^2.15.0"
+  },
+  "overrides": {
+    "cheerio": "1.0.0-rc.12"
   },
   "contributes": {
     "commands": [
