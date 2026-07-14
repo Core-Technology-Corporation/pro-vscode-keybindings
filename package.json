@@ -93,6 +93,11 @@
         "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
       },
       {
+        "key": "ctrl+f5",
+        "command": "workbench.action.reloadWindow",
+        "when": "!(editorLangId =~ /sql|dbclient-js|cql|postgres/) && !(resourceFilename =~ /.sql$/)"
+      },
+      {
         "key": "ctrl+f12",
         "command": "workbench.action.debug.stop",
         "when": "inDebugMode"
@@ -165,6 +170,10 @@
       {
         "key": "ctrl+f1",
         "command": "workbench.action.openSettingsJson"
+      },
+      {
+        "key": "ctrl+shift+[Semicolon]",
+        "command": "workbench.action.terminal.new"
       }
     ]
   }

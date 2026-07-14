@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "key": "ctrl+shift+[Semicolon]",
+    "command": "workbench.action.terminal.new"
+  }
+]

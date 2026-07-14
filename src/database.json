@@ -3,5 +3,10 @@
     "key": "ctrl+f5",
     "command": "mysql.runSQLWithoutParse",
     "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
+  },
+  {
+    "key": "ctrl+f5",
+    "command": "workbench.action.reloadWindow",
+    "when": "!(editorLangId =~ /sql|dbclient-js|cql|postgres/) && !(resourceFilename =~ /.sql$/)"
   }
 ]
