@@ -85,6 +85,7 @@
   },
   {
     "key": "ctrl+shift+[Semicolon]",
-    "command": "workbench.action.terminal.new"
+    "command": "workbench.action.terminal.new",
+    "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
   }
 ]

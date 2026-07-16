@@ -2,7 +2,7 @@
   "name": "pro-vscode-keybindings",
   "displayName": "Pro VSCode Keybindings",
   "description": "Professional, productivity-focused keyboard shortcuts for Visual Studio Code.",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "alvarosiles",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -180,7 +180,8 @@
       },
       {
         "key": "ctrl+shift+[Semicolon]",
-        "command": "workbench.action.terminal.new"
+        "command": "workbench.action.terminal.new",
+        "when": "terminalProcessSupported || terminalWebExtensionContributedProfile"
       }
     ]
   }
