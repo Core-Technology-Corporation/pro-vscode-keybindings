@@ -1,0 +1,5 @@
+{
+    "powerquery.client.additionalSymbolsDirectories": [
+        "c:/Users/ALVARO/Documents/GitHub/pro-vscode-keybindings/.vscode/excel-pq-symbols"
+    ]
+}
