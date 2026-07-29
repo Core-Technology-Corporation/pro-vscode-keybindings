@@ -1,3 +1,12 @@
+    <!-- {
+        "key": "alt+b",
+        "command": "extension.openInBrowser"
+    },
+    {
+        "key": "shift+alt+b",
+        "command": "extension.openInSpecifiedBrowser"
+    } -->
+
 pro-vscode-keybindings/
 ├── package.json          ← contributes.keybindings generado automáticamente
 ├── README.md              ← reescrito con tabla completa de 46 atajos + estructura

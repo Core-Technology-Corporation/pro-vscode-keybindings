@@ -1,5 +1,13 @@
 [
   {
+    "key": "ctrl+shift+c+v",
+    "command": "workbench.view.extension.claude-sessions-sidebar"
+  },
+  {
+    "key": "ctrl+shift+c",
+    "command": "workbench.view.extension.claude-sidebar-secondary"
+  },
+  {
     "key": "ctrl+f5",
     "command": "mysql.runSQLWithoutParse",
     "when": "editorLangId =~ /sql|dbclient-js|cql|postgres/ || resourceFilename =~ /.sql$/"
@@ -58,6 +66,11 @@
     "key": "alt+up",
     "command": "editor.action.moveLinesUpAction",
     "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "alt+enter",
+    "command": "revealFileInOS",
+    "when": "filesExplorerFocus"
   },
   {
     "key": "ctrl+f10",
