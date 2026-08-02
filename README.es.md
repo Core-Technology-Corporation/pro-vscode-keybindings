@@ -16,12 +16,22 @@ Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteli
 | `Ctrl+F2` | Abrir tu `keybindings.json` global |
 | `Ctrl+F3` | Plegar/desplegar bloque de código |
 | `Ctrl+F4` | Unir líneas |
-| `Ctrl+F5` | Ejecutar SQL *(solo en archivos `.sql`, requiere una extensión de cliente de base de datos)* |
+| `Ctrl+F5` | Ejecutar SQL *(solo en archivos `.sql`, requiere una extensión de cliente de base de datos)* / Recargar ventana *(en otro caso)* |
 | `Ctrl+F7` | Detectar el tipo de proyecto → lo imprime en una terminal |
 | `Ctrl+F8` | Quick Commit → completa el mensaje de commit con `chore: update` |
 | `Ctrl+F9` | Commit Message Picker → elegís título + descripción, y **hace commit y push** |
 | `Ctrl+F10` | Abrir la carpeta actual en GitHub Desktop |
 | `Ctrl+F12` | Detener el debug *(mientras debuggeás)* / Smart Run *(en otro caso)* |
+| `Ctrl+Shift+;` | Nueva terminal |
+| `Ctrl+Shift+C` | Abrir el panel lateral de Claude |
+| `Ctrl+Shift+C+V` | Abrir el panel lateral de sesiones de Claude |
+
+### Explorador de archivos
+
+| Tecla | Acción |
+| --- | --- |
+| `Ctrl+R` | Abrir el archivo/carpeta seleccionado como proyecto en una ventana nueva |
+| `Alt+Shift+Enter` | Abrir la carpeta seleccionada en el Explorador en una ventana nueva |
 
 **Smart Run (`Ctrl+F12`)** abre un selector para correr el proyecto de la forma correcta: Live Server para HTML, `npm run web` para React, Start Debugging para Java, `npm start` para React Native, `vsce package` para una extensión de VS Code.
 

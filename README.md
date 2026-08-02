@@ -22,12 +22,22 @@ Minimal keyboard shortcuts for Visual Studio Code, plus a few smart commands for
 | `Ctrl+F2` | Open your global `keybindings.json` |
 | `Ctrl+F3` | Toggle fold (collapse/expand code block) |
 | `Ctrl+F4` | Join lines |
-| `Ctrl+F5` | Run SQL *(only in `.sql` files, needs a DB client extension)* |
+| `Ctrl+F5` | Run SQL *(only in `.sql` files, needs a DB client extension)* / Reload window *(otherwise)* |
 | `Ctrl+F7` | Detect project type → prints it to a terminal |
 | `Ctrl+F8` | Quick Commit → fills the commit message with `chore: update` |
 | `Ctrl+F9` | Commit Message Picker → pick title + description, then **commits and pushes** |
 | `Ctrl+F10` | Open the current folder in GitHub Desktop |
 | `Ctrl+F12` | Stop debugging *(while debugging)* / Smart Run *(otherwise)* |
+| `Ctrl+Shift+;` | New terminal |
+| `Ctrl+Shift+C` | Open Claude sidebar |
+| `Ctrl+Shift+C+V` | Open Claude sessions sidebar |
+
+### File Explorer
+
+| Key | Action |
+| --- | --- |
+| `Ctrl+R` | Open the selected file/folder as a new project window |
+| `Alt+Shift+Enter` | Open the folder currently selected in the Explorer in a new window |
 
 **Smart Run (`Ctrl+F12`)** opens a picker to run the project the right way: Live Server for HTML, `npm run web` for React, Start Debugging for Java, `npm start` for React Native, `vsce package` for a VS Code extension.
 

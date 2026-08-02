@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.8]
+
+- New command **Pro Keybindings: Open Selected Folder In New Window** (`proKeybindings.openSelectedFolderInNewWindow`), bound to `Alt+Shift+Enter` in the File Explorer. Opens the folder currently selected in the Explorer in a new VS Code window, using the Explorer's own `copyFilePath` command internally to read the selection (the extension API doesn't expose it directly).
+
 ## [1.1.0]
 
 - Added real extension logic (`extension/extension.ts`, bundled with esbuild into `dist/extension.js`) — this is no longer a pure keymap-only extension.
