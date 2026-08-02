@@ -73,12 +73,12 @@ Doesn't change code logic. Safe to run again: it first removes the lines it inse
 
 > ℹ️ Formatting and import organizing depend on the formatter/language service installed for that file (TypeScript/JavaScript ships with VS Code; other languages need their own extension). Removing dead code or unused variables is not automated — doing that blindly can change behavior.
 
-**⚡ Super** (`F12`, or right-click → "⚡ Super" — same extensions as "Clean consoles") does everything above plus:
+**⚡ Super** (`F12`, or right-click → "⚡ Super" — available in both the editor and the Explorer, same extensions as "Clean consoles") does everything above plus:
 
 - Removes `console.debug(...)` and commented-out `// console.log(...)` / `// console.debug(...)` leftovers.
 - Adds a `default:` case with `console.warn(...)` + `break;` to `switch` statements that don't have one.
 - Regroups `import` statements into three blank-line-separated blocks: external, internal (`@/...`, `~/...`), and relative (`./`, `../`), preserving each import's order within its group.
-- Textually protects the line `import React, { Component } from 'react';`: if it appears exactly like that in the file, it's never touched or moved, even when `organizeImports` or the formatter would otherwise change it.
+- **Protects any import whose source is exactly `'react'` or `"react"`** (`import React from 'react';`, `import React, { Component } from 'react';`, `import { useState, useEffect } from 'react';`, etc.): never reordered, reformatted, or stripped of "unused" members — it stays character-for-character the same, even if `organizeImports` or the formatter would otherwise touch it. This protection runs in **both** commands, not just "⚡ Super".
 
 > ⚠️ `F12` replaces VS Code's default "Go to Definition" shortcut — but only inside files with those extensions. In every other language, `F12` keeps working as usual.
 >

@@ -527,13 +527,58 @@ interface FuncFrame {
 const CODE_FILE_EXTENSIONS = new Set([
   '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.vue', '.svelte', '.astro'
 ]);
-const REACT_IMPORT_GUARD = "import React, { Component } from 'react';";
+/** Any import whose source is exactly 'react'/"react" — protected, never modified. */
+const REACT_IMPORT_REGEX = /^\s*import\s.+from\s+['"]react['"]\s*;?\s*$/;
 const SWITCH_PREFIX = /^(\s*)switch\s*\(/;
 const CONSOLE_DEBUG_LINE_REGEX = /^\s*console\.debug\(.*\)\s*;?\s*$/;
 const COMMENTED_CONSOLE_REGEX = /^\s*\/\/\s*console\.(log|debug)\(/;
 const IMPORT_LINE_REGEX = /^\s*import\s.+from\s+['"](.+)['"]\s*;?\s*$/;
 
 const indentOf = (s: string) => s.slice(0, s.length - s.trimStart().length);
+
+function findReactImportLines(text: string): string[] {
+  return text.split(/\r\n|\n/).filter((l) => REACT_IMPORT_REGEX.test(l));
+}
+
+/**
+ * Restores every original `from 'react'`/`from "react"` import line verbatim,
+ * undoing anything `organizeImports`/`formatDocument` may have done to them
+ * (dropping an unused named import, changing quotes, reordering, etc).
+ */
+async function restoreProtectedReactImports(doc: vscode.TextDocument, originalReactLines: string[]): Promise<void> {
+  if (originalReactLines.length === 0) {
+    return;
+  }
+  const currentLines = doc.getText().split(/\r\n|\n/);
+  const currentReactIndices = currentLines
+    .map((l, idx) => ({ l, idx }))
+    .filter(({ l }) => REACT_IMPORT_REGEX.test(l));
+
+  const edit = new vscode.WorkspaceEdit();
+
+  if (currentReactIndices.length === originalReactLines.length) {
+    currentReactIndices.forEach(({ idx, l }, i) => {
+      if (l !== originalReactLines[i]) {
+        edit.replace(doc.uri, doc.lineAt(idx).range, originalReactLines[i]);
+      }
+    });
+  } else {
+    // Count diverged (an import got merged/dropped) — reinsert whatever original
+    // react import text is missing, right after the last surviving one.
+    const missing = originalReactLines.filter((orig) => !currentLines.includes(orig));
+    if (missing.length > 0) {
+      const anchorIdx = currentReactIndices.length > 0
+        ? currentReactIndices[currentReactIndices.length - 1].idx
+        : 0;
+      const anchorLine = doc.lineAt(Math.min(anchorIdx, doc.lineCount - 1));
+      edit.insert(doc.uri, anchorLine.range.end, '\n' + missing.join('\n'));
+    }
+  }
+
+  if (edit.size > 0) {
+    await vscode.workspace.applyEdit(edit);
+  }
+}
 
 interface ConsoleCleanupResult {
   lines: string[];
@@ -750,14 +795,15 @@ function addMissingSwitchDefaults(lines: string[]): { lines: string[]; addedCoun
 /**
  * Regroups the leading import block into external / internal (`@/...`) / relative (`./`, `../`)
  * sections separated by a single blank line, preserving each import's original relative order
- * within its group. The exact React import guard line (if present) is never touched or moved —
- * it splits the block instead of being sorted into it.
+ * within its group. Any import from 'react'/"react" is protected code: it's never sorted,
+ * reordered, or merged with anything — each one stays pinned exactly where it was, splitting
+ * the sortable block around it.
  */
 function organizeImportGroups(lines: string[]): { lines: string[]; changed: boolean } {
   let end = 0;
   while (end < lines.length) {
     const t = lines[end].trim();
-    if (t === '' || IMPORT_LINE_REGEX.test(lines[end]) || t.startsWith('//') || t === REACT_IMPORT_GUARD) {
+    if (t === '' || IMPORT_LINE_REGEX.test(lines[end]) || t.startsWith('//') || REACT_IMPORT_REGEX.test(lines[end])) {
       end++;
       continue;
     }
@@ -768,7 +814,6 @@ function organizeImportGroups(lines: string[]): { lines: string[]; changed: bool
   }
 
   const head = lines.slice(0, end);
-  const guardIndex = head.findIndex((l) => l.trim() === REACT_IMPORT_GUARD);
 
   const sortSegment = (segment: string[]): string[] => {
     const external: string[] = [];
@@ -787,17 +832,28 @@ function organizeImportGroups(lines: string[]): { lines: string[]; changed: bool
     return groups.map((g) => g.join('\n')).join('\n\n').split('\n');
   };
 
-  let newHead: string[];
-  if (guardIndex === -1) {
-    newHead = sortSegment(head);
-  } else {
-    const before = sortSegment(head.slice(0, guardIndex));
-    const after = sortSegment(head.slice(guardIndex + 1));
-    newHead = [...before, ...(before.length ? [''] : []), REACT_IMPORT_GUARD, ...(after.length ? [''] : []), ...after];
+  // Split the head on every protected react-import line, sort each in-between
+  // chunk on its own, and stitch everything back together around the pins.
+  const newHeadParts: string[] = [];
+  let chunkStart = 0;
+  for (let i = 0; i <= head.length; i++) {
+    const isPin = i < head.length && REACT_IMPORT_REGEX.test(head[i]);
+    if (isPin || i === head.length) {
+      const chunk = sortSegment(head.slice(chunkStart, i));
+      if (chunk.length > 0 && chunk.some((l) => l.trim())) {
+        if (newHeadParts.length > 0) newHeadParts.push('');
+        newHeadParts.push(...chunk);
+      }
+      if (isPin) {
+        if (newHeadParts.length > 0) newHeadParts.push('');
+        newHeadParts.push(head[i]);
+      }
+      chunkStart = i + 1;
+    }
   }
 
-  const changed = newHead.join('\n') !== head.join('\n');
-  return { lines: [...newHead, ...lines.slice(end)], changed };
+  const changed = newHeadParts.join('\n') !== head.join('\n');
+  return { lines: [...newHeadParts, ...lines.slice(end)], changed };
 }
 
 async function cmdFormatWithConsoles(): Promise<void> {
@@ -813,6 +869,7 @@ async function cmdFormatWithConsoles(): Promise<void> {
     return;
   }
   const eol = doc.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+  const originalReactLines = findReactImportLines(doc.getText());
 
   const originalLines = doc.getText().split(/\r\n|\n/);
   const { lines, removedCount, insertedCount } = cleanupConsoleLines(originalLines);
@@ -835,6 +892,7 @@ async function cmdFormatWithConsoles(): Promise<void> {
   } catch {
     // No formatter registered/installed for this language — leave indentation as-is.
   }
+  await restoreProtectedReactImports(doc, originalReactLines);
 
   vscode.window.showInformationMessage(
     `Pro Keybindings: ${removedCount} console.log eliminados, ${insertedCount} console.error/warn/info agregados, archivo formateado.`
@@ -843,9 +901,9 @@ async function cmdFormatWithConsoles(): Promise<void> {
 
 /**
  * "⚡ Super" (F12) — a heavier pass on top of "♻️ Limpiar consolas": also fills in
- * missing `switch` defaults, drops commented-out console.* leftovers, regroups
- * imports (external / internal / relative), and protects the exact
- * `import React, { Component } from 'react';` line from any modification.
+ * missing `switch` defaults, drops commented-out console.* leftovers, and regroups
+ * imports (external / internal / relative). Every import from 'react'/"react" is
+ * protected code: never sorted, reordered, reformatted, or pruned as "unused".
  * Never touches variable/parameter/dead-code removal — that's left to the
  * project's own linter, since a regex-based pass can't safely tell "unused"
  * from "used indirectly" without breaking behavior.
@@ -863,7 +921,7 @@ async function cmdSuperClean(): Promise<void> {
     return;
   }
   const eol = doc.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
-  const guardPresent = doc.getText().split(/\r\n|\n/).some((l) => l.trim() === REACT_IMPORT_GUARD);
+  const originalReactLines = findReactImportLines(doc.getText());
 
   const originalLines = doc.getText().split(/\r\n|\n/);
   const { lines: consoleLines, removedCount, insertedCount } = cleanupConsoleLines(originalLines, { dropDebugComments: true });
@@ -886,19 +944,7 @@ async function cmdSuperClean(): Promise<void> {
   } catch {
     // No formatter registered/installed for this language — leave indentation as-is.
   }
-
-  // Guarantee the guarded React import survived organizeImports/formatDocument untouched.
-  if (guardPresent) {
-    const currentLines = doc.getText().split(/\r\n|\n/);
-    if (!currentLines.some((l) => l.trim() === REACT_IMPORT_GUARD)) {
-      const candidateIndex = currentLines.findIndex((l) => /from\s+['"]react['"]/.test(l) && l.includes('Component'));
-      if (candidateIndex !== -1) {
-        const restoreEdit = new vscode.WorkspaceEdit();
-        restoreEdit.replace(doc.uri, doc.lineAt(candidateIndex).range, REACT_IMPORT_GUARD);
-        await vscode.workspace.applyEdit(restoreEdit);
-      }
-    }
-  }
+  await restoreProtectedReactImports(doc, originalReactLines);
 
   vscode.window.showInformationMessage(
     `Pro Keybindings ⚡ Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ` +

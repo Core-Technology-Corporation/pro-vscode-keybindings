@@ -15,18 +15,30 @@
   ],
   "categories": [
     "Keymaps",
+    "Formatters",
     "Other"
   ],
   "keywords": [
     "keybindings",
     "keymap",
     "shortcuts",
+    "hotkeys",
     "productivity",
-    "keyboard",
+    "keyboard shortcuts",
     "git",
+    "quick commit",
+    "commit message",
+    "github desktop",
     "debug",
     "terminal",
-    "copilot"
+    "console log",
+    "console.error",
+    "clean code",
+    "organize imports",
+    "format code",
+    "react",
+    "typescript",
+    "javascript"
   ],
   "repository": {
     "type": "git",
@@ -114,6 +126,11 @@
         },
         {
           "command": "proKeybindings.formatWithConsoles",
+          "when": "filesExplorerFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/",
+          "group": "navigation"
+        },
+        {
+          "command": "proKeybindings.superClean",
           "when": "filesExplorerFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/",
           "group": "navigation"
         }

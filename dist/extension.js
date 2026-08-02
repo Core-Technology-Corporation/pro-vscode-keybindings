@@ -533,12 +533,40 @@ var CODE_FILE_EXTENSIONS = /* @__PURE__ */ new Set([
   ".svelte",
   ".astro"
 ]);
-var REACT_IMPORT_GUARD = "import React, { Component } from 'react';";
+var REACT_IMPORT_REGEX = /^\s*import\s.+from\s+['"]react['"]\s*;?\s*$/;
 var SWITCH_PREFIX = /^(\s*)switch\s*\(/;
 var CONSOLE_DEBUG_LINE_REGEX = /^\s*console\.debug\(.*\)\s*;?\s*$/;
 var COMMENTED_CONSOLE_REGEX = /^\s*\/\/\s*console\.(log|debug)\(/;
 var IMPORT_LINE_REGEX = /^\s*import\s.+from\s+['"](.+)['"]\s*;?\s*$/;
 var indentOf = (s) => s.slice(0, s.length - s.trimStart().length);
+function findReactImportLines(text) {
+  return text.split(/\r\n|\n/).filter((l) => REACT_IMPORT_REGEX.test(l));
+}
+async function restoreProtectedReactImports(doc, originalReactLines) {
+  if (originalReactLines.length === 0) {
+    return;
+  }
+  const currentLines = doc.getText().split(/\r\n|\n/);
+  const currentReactIndices = currentLines.map((l, idx) => ({ l, idx })).filter(({ l }) => REACT_IMPORT_REGEX.test(l));
+  const edit = new vscode.WorkspaceEdit();
+  if (currentReactIndices.length === originalReactLines.length) {
+    currentReactIndices.forEach(({ idx, l }, i) => {
+      if (l !== originalReactLines[i]) {
+        edit.replace(doc.uri, doc.lineAt(idx).range, originalReactLines[i]);
+      }
+    });
+  } else {
+    const missing = originalReactLines.filter((orig) => !currentLines.includes(orig));
+    if (missing.length > 0) {
+      const anchorIdx = currentReactIndices.length > 0 ? currentReactIndices[currentReactIndices.length - 1].idx : 0;
+      const anchorLine = doc.lineAt(Math.min(anchorIdx, doc.lineCount - 1));
+      edit.insert(doc.uri, anchorLine.range.end, "\n" + missing.join("\n"));
+    }
+  }
+  if (edit.size > 0) {
+    await vscode.workspace.applyEdit(edit);
+  }
+}
 function cleanupConsoleLines(originalLines, opts = {}) {
   const isOwnConsoleLine = (line) => {
     const t = line.trim();
@@ -707,7 +735,7 @@ function organizeImportGroups(lines) {
   let end = 0;
   while (end < lines.length) {
     const t = lines[end].trim();
-    if (t === "" || IMPORT_LINE_REGEX.test(lines[end]) || t.startsWith("//") || t === REACT_IMPORT_GUARD) {
+    if (t === "" || IMPORT_LINE_REGEX.test(lines[end]) || t.startsWith("//") || REACT_IMPORT_REGEX.test(lines[end])) {
       end++;
       continue;
     }
@@ -717,7 +745,6 @@ function organizeImportGroups(lines) {
     return { lines, changed: false };
   }
   const head = lines.slice(0, end);
-  const guardIndex = head.findIndex((l) => l.trim() === REACT_IMPORT_GUARD);
   const sortSegment = (segment) => {
     const external = [];
     const internal = [];
@@ -734,16 +761,25 @@ function organizeImportGroups(lines) {
     const groups = [external, internal, relative].filter((g) => g.length > 0);
     return groups.map((g) => g.join("\n")).join("\n\n").split("\n");
   };
-  let newHead;
-  if (guardIndex === -1) {
-    newHead = sortSegment(head);
-  } else {
-    const before = sortSegment(head.slice(0, guardIndex));
-    const after = sortSegment(head.slice(guardIndex + 1));
-    newHead = [...before, ...before.length ? [""] : [], REACT_IMPORT_GUARD, ...after.length ? [""] : [], ...after];
+  const newHeadParts = [];
+  let chunkStart = 0;
+  for (let i = 0; i <= head.length; i++) {
+    const isPin = i < head.length && REACT_IMPORT_REGEX.test(head[i]);
+    if (isPin || i === head.length) {
+      const chunk = sortSegment(head.slice(chunkStart, i));
+      if (chunk.length > 0 && chunk.some((l) => l.trim())) {
+        if (newHeadParts.length > 0) newHeadParts.push("");
+        newHeadParts.push(...chunk);
+      }
+      if (isPin) {
+        if (newHeadParts.length > 0) newHeadParts.push("");
+        newHeadParts.push(head[i]);
+      }
+      chunkStart = i + 1;
+    }
   }
-  const changed = newHead.join("\n") !== head.join("\n");
-  return { lines: [...newHead, ...lines.slice(end)], changed };
+  const changed = newHeadParts.join("\n") !== head.join("\n");
+  return { lines: [...newHeadParts, ...lines.slice(end)], changed };
 }
 async function cmdFormatWithConsoles() {
   const editor = vscode.window.activeTextEditor;
@@ -757,6 +793,7 @@ async function cmdFormatWithConsoles() {
     return;
   }
   const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+  const originalReactLines = findReactImportLines(doc.getText());
   const originalLines = doc.getText().split(/\r\n|\n/);
   const { lines, removedCount, insertedCount } = cleanupConsoleLines(originalLines);
   const collapsedLines = trimAndCollapseBlankLines(lines);
@@ -772,6 +809,7 @@ async function cmdFormatWithConsoles() {
     await vscode.commands.executeCommand("editor.action.formatDocument");
   } catch {
   }
+  await restoreProtectedReactImports(doc, originalReactLines);
   vscode.window.showInformationMessage(
     `Pro Keybindings: ${removedCount} console.log eliminados, ${insertedCount} console.error/warn/info agregados, archivo formateado.`
   );
@@ -788,7 +826,7 @@ async function cmdSuperClean() {
     return;
   }
   const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
-  const guardPresent = doc.getText().split(/\r\n|\n/).some((l) => l.trim() === REACT_IMPORT_GUARD);
+  const originalReactLines = findReactImportLines(doc.getText());
   const originalLines = doc.getText().split(/\r\n|\n/);
   const { lines: consoleLines, removedCount, insertedCount } = cleanupConsoleLines(originalLines, { dropDebugComments: true });
   const { lines: withDefaults, addedCount: defaultsAdded } = addMissingSwitchDefaults(consoleLines);
@@ -806,17 +844,7 @@ async function cmdSuperClean() {
     await vscode.commands.executeCommand("editor.action.formatDocument");
   } catch {
   }
-  if (guardPresent) {
-    const currentLines = doc.getText().split(/\r\n|\n/);
-    if (!currentLines.some((l) => l.trim() === REACT_IMPORT_GUARD)) {
-      const candidateIndex = currentLines.findIndex((l) => /from\s+['"]react['"]/.test(l) && l.includes("Component"));
-      if (candidateIndex !== -1) {
-        const restoreEdit = new vscode.WorkspaceEdit();
-        restoreEdit.replace(doc.uri, doc.lineAt(candidateIndex).range, REACT_IMPORT_GUARD);
-        await vscode.workspace.applyEdit(restoreEdit);
-      }
-    }
-  }
+  await restoreProtectedReactImports(doc, originalReactLines);
   vscode.window.showInformationMessage(
     `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, archivo formateado.`
   );
