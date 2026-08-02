@@ -1,7 +1,7 @@
 [
   {
     "key": "alt+shift+enter",
-    "command": "revealFileInOS",
+    "command": "proKeybindings.openSelectedFolderInNewWindow",
     "when": "filesExplorerFocus"
   },
   {

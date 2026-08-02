@@ -590,6 +590,38 @@ async function cmdFormatWithConsoles() {
     `Pro Keybindings: ${removedCount} console.* anteriores eliminados, ${inserts.length} nuevos agregados.`
   );
 }
+async function cmdOpenAsNewProject(uri) {
+  const target = uri ?? vscode.window.activeTextEditor?.document.uri;
+  if (!target) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ning\xFAn archivo o carpeta seleccionado.");
+    return;
+  }
+  let folderPath = target.fsPath;
+  try {
+    if (!fs.statSync(folderPath).isDirectory()) {
+      folderPath = path.dirname(folderPath);
+    }
+  } catch {
+    vscode.window.showWarningMessage("Pro Keybindings: no se pudo acceder a la ruta seleccionada.");
+    return;
+  }
+  await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(folderPath), {
+    forceNewWindow: true
+  });
+}
+async function cmdOpenSelectedFolderInNewWindow() {
+  const previousClipboard = await vscode.env.clipboard.readText();
+  await vscode.commands.executeCommand("copyFilePath");
+  const copiedPath = (await vscode.env.clipboard.readText()).split(/\r?\n/)[0].trim();
+  await vscode.env.clipboard.writeText(previousClipboard);
+  if (!copiedPath) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ninguna carpeta seleccionada en el Explorador.");
+    return;
+  }
+  await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(copiedPath), {
+    forceNewWindow: true
+  });
+}
 function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand("proKeybindings.detectProjectType", cmdDetectProjectType),
@@ -597,7 +629,9 @@ function activate(context) {
     vscode.commands.registerCommand("proKeybindings.quickCommit", cmdQuickCommit),
     vscode.commands.registerCommand("proKeybindings.openGitHubDesktop", cmdOpenGitHubDesktop),
     vscode.commands.registerCommand("proKeybindings.commitMessagePicker", cmdCommitMessagePicker),
-    vscode.commands.registerCommand("proKeybindings.formatWithConsoles", cmdFormatWithConsoles)
+    vscode.commands.registerCommand("proKeybindings.formatWithConsoles", cmdFormatWithConsoles),
+    vscode.commands.registerCommand("proKeybindings.openAsNewProject", cmdOpenAsNewProject),
+    vscode.commands.registerCommand("proKeybindings.openSelectedFolderInNewWindow", cmdOpenSelectedFolderInNewWindow)
   );
 }
 function deactivate() {

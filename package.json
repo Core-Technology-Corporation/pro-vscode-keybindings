@@ -82,6 +82,10 @@
       {
         "command": "proKeybindings.formatWithConsoles",
         "title": "🧹 Formatear con consoles"
+      },
+      {
+        "command": "proKeybindings.openSelectedFolderInNewWindow",
+        "title": "Pro Keybindings: Open Selected Folder In New Window"
       }
     ],
     "menus": {
@@ -164,7 +168,7 @@
       },
       {
         "key": "alt+shift+enter",
-        "command": "revealFileInOS",
+        "command": "proKeybindings.openSelectedFolderInNewWindow",
         "when": "filesExplorerFocus"
       },
       {

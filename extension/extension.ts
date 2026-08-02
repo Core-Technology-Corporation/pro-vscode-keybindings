@@ -627,6 +627,26 @@ async function cmdOpenAsNewProject(uri?: vscode.Uri): Promise<void> {
   });
 }
 
+async function cmdOpenSelectedFolderInNewWindow(): Promise<void> {
+  const previousClipboard = await vscode.env.clipboard.readText();
+
+  // "copyFilePath" internamente lee la selección actual del Explorador,
+  // algo que la API pública de extensiones no expone directamente.
+  await vscode.commands.executeCommand('copyFilePath');
+  const copiedPath = (await vscode.env.clipboard.readText()).split(/\r?\n/)[0].trim();
+
+  await vscode.env.clipboard.writeText(previousClipboard);
+
+  if (!copiedPath) {
+    vscode.window.showWarningMessage('Pro Keybindings: no hay ninguna carpeta seleccionada en el Explorador.');
+    return;
+  }
+
+  await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(copiedPath), {
+    forceNewWindow: true
+  });
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('proKeybindings.detectProjectType', cmdDetectProjectType),
@@ -635,7 +655,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('proKeybindings.openGitHubDesktop', cmdOpenGitHubDesktop),
     vscode.commands.registerCommand('proKeybindings.commitMessagePicker', cmdCommitMessagePicker),
     vscode.commands.registerCommand('proKeybindings.formatWithConsoles', cmdFormatWithConsoles),
-    vscode.commands.registerCommand('proKeybindings.openAsNewProject', cmdOpenAsNewProject)
+    vscode.commands.registerCommand('proKeybindings.openAsNewProject', cmdOpenAsNewProject),
+    vscode.commands.registerCommand('proKeybindings.openSelectedFolderInNewWindow', cmdOpenSelectedFolderInNewWindow)
   );
 }
 
