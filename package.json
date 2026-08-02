@@ -163,8 +163,13 @@
         "when": "editorTextFocus && !editorReadonly"
       },
       {
-        "key": "alt+enter",
+        "key": "alt+shift+enter",
         "command": "revealFileInOS",
+        "when": "filesExplorerFocus"
+      },
+      {
+        "key": "ctrl+r",
+        "command": "proKeybindings.openAsNewProject",
         "when": "filesExplorerFocus"
       },
       {

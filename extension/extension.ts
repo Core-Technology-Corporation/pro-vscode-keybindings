@@ -605,6 +605,28 @@ async function cmdFormatWithConsoles(): Promise<void> {
   );
 }
 
+async function cmdOpenAsNewProject(uri?: vscode.Uri): Promise<void> {
+  const target = uri ?? vscode.window.activeTextEditor?.document.uri;
+  if (!target) {
+    vscode.window.showWarningMessage('Pro Keybindings: no hay ningún archivo o carpeta seleccionado.');
+    return;
+  }
+
+  let folderPath = target.fsPath;
+  try {
+    if (!fs.statSync(folderPath).isDirectory()) {
+      folderPath = path.dirname(folderPath);
+    }
+  } catch {
+    vscode.window.showWarningMessage('Pro Keybindings: no se pudo acceder a la ruta seleccionada.');
+    return;
+  }
+
+  await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(folderPath), {
+    forceNewWindow: true
+  });
+}
+
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('proKeybindings.detectProjectType', cmdDetectProjectType),
@@ -612,7 +634,8 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('proKeybindings.quickCommit', cmdQuickCommit),
     vscode.commands.registerCommand('proKeybindings.openGitHubDesktop', cmdOpenGitHubDesktop),
     vscode.commands.registerCommand('proKeybindings.commitMessagePicker', cmdCommitMessagePicker),
-    vscode.commands.registerCommand('proKeybindings.formatWithConsoles', cmdFormatWithConsoles)
+    vscode.commands.registerCommand('proKeybindings.formatWithConsoles', cmdFormatWithConsoles),
+    vscode.commands.registerCommand('proKeybindings.openAsNewProject', cmdOpenAsNewProject)
   );
 }
 
