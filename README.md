@@ -58,14 +58,18 @@ Pro VSCode Keybindings es un set mínimo de atajos de teclado, más un puñado d
 
 ## Menú contextual (Editor y Explorador)
 
-**♻️ Limpiar consolas** (`Ctrl+F6` dentro de un archivo JS/TS/JSX/TSX, o click derecho → "♻️ Limpiar consolas" — disponible tanto en el editor como en el Explorador) estandariza el logging del archivo:
+**♻️ Limpiar consolas** (`Ctrl+F6`, o click derecho → "♻️ Limpiar consolas" — disponible tanto en el editor como en el Explorador, solo para `.ts` `.tsx` `.js` `.jsx` `.mjs` `.cjs` `.vue` `.svelte` `.astro`) estandariza el logging del archivo:
 
 - Elimina todo `console.log(...)` temporal o de depuración.
 - Asegura un `console.error("Función: error.", err)` dentro de cada `catch`.
 - Agrega `console.warn("Función: condición no cumplida...")` antes de guardas (`return;` sin valor) y bloques `if`/`else`/`switch` vacíos.
 - Agrega `console.info("Función: proceso finalizado correctamente.")` antes del `return` final en funciones tipo `load*`, `init*`, `fetch*` o `create*`.
+- Quita espacios al final de línea y colapsa líneas en blanco consecutivas a una sola.
+- Reformatea el archivo con el formateador del lenguaje (indentación, tabs vs. espacios, alineación de llaves) y organiza/limpia los imports no usados, usando los mismos comandos nativos de VS Code (`editor.action.formatDocument` / `editor.action.organizeImports`) — no reinventa un formatter propio.
 
-Se puede ejecutar de nuevo sin problema: antes de reinstrumentar, borra los mensajes que él mismo insertó en la corrida anterior.
+No cambia la lógica del código. Se puede ejecutar de nuevo sin problema: antes de reinstrumentar, borra los mensajes que él mismo insertó en la corrida anterior.
+
+> ℹ️ El formateo y la organización de imports dependen del formateador/lenguaje instalado para ese archivo (el de TypeScript/JavaScript viene con VS Code; para otros lenguajes necesitás la extensión correspondiente). La eliminación de variables o código muerto no se automatiza — cambiar eso a ciegas puede alterar el comportamiento.
 
 ## Por qué la gente la deja instalada
 

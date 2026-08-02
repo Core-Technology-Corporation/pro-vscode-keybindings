@@ -93,7 +93,7 @@
       "editor/context": [
         {
           "command": "proKeybindings.formatWithConsoles",
-          "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/",
+          "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/",
           "group": "1_modification"
         }
       ],
@@ -105,7 +105,7 @@
         },
         {
           "command": "proKeybindings.formatWithConsoles",
-          "when": "filesExplorerFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/",
+          "when": "filesExplorerFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/",
           "group": "navigation"
         }
       ],
@@ -189,7 +189,7 @@
       {
         "key": "ctrl+f6",
         "command": "proKeybindings.formatWithConsoles",
-        "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/"
+        "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
       },
       {
         "key": "ctrl+shift+a",

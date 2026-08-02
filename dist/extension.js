@@ -522,6 +522,17 @@ function matchCatch(text) {
   const rest = text.slice(closeIndex + 1).trim();
   return { indent: m[1], paramName, isBlock: rest === "" || rest === "{" };
 }
+var FORMAT_WITH_CONSOLES_EXTENSIONS = /* @__PURE__ */ new Set([
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".vue",
+  ".svelte",
+  ".astro"
+]);
 async function cmdFormatWithConsoles() {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
@@ -529,6 +540,10 @@ async function cmdFormatWithConsoles() {
     return;
   }
   const doc = editor.document;
+  if (!FORMAT_WITH_CONSOLES_EXTENSIONS.has(path.extname(doc.fileName).toLowerCase())) {
+    vscode.window.showWarningMessage("Pro Keybindings: este comando solo funciona en archivos .ts/.tsx/.js/.jsx/.mjs/.cjs/.vue/.svelte/.astro.");
+    return;
+  }
   const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
   const indentOf = (s) => s.slice(0, s.length - s.trimStart().length);
   const isOwnConsoleLine = (line) => {
@@ -630,20 +645,32 @@ async function cmdFormatWithConsoles() {
       }
     }
   }
-  if (inserts.length === 0 && removedCount === 0) {
-    vscode.window.showInformationMessage("Pro Keybindings: no se encontraron catch, returns ni condiciones para instrumentar.");
-    return;
-  }
   inserts.sort((a, b) => b.targetLine - a.targetLine);
   for (const ins of inserts) {
     lines.splice(ins.targetLine, 0, `${ins.indent}${ins.statement}`);
   }
+  const trimmedLines = lines.map((line) => line.replace(/[ \t]+$/, ""));
+  const collapsedLines = [];
+  for (const line of trimmedLines) {
+    if (line === "" && collapsedLines[collapsedLines.length - 1] === "") {
+      continue;
+    }
+    collapsedLines.push(line);
+  }
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, lines.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, collapsedLines.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
+  try {
+    await vscode.commands.executeCommand("editor.action.organizeImports");
+  } catch {
+  }
+  try {
+    await vscode.commands.executeCommand("editor.action.formatDocument");
+  } catch {
+  }
   vscode.window.showInformationMessage(
-    `Pro Keybindings: ${removedCount} console.log eliminados, ${inserts.length} console.error/warn/info agregados.`
+    `Pro Keybindings: ${removedCount} console.log eliminados, ${inserts.length} console.error/warn/info agregados, archivo formateado.`
   );
 }
 async function cmdOpenAsNewProject(uri) {

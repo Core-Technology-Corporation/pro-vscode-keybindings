@@ -534,6 +534,10 @@ interface FuncFrame {
  *   final return of load/init/fetch/create-style functions.
  * Re-running is idempotent: lines this tool inserted before are removed first.
  */
+const FORMAT_WITH_CONSOLES_EXTENSIONS = new Set([
+  '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.vue', '.svelte', '.astro'
+]);
+
 async function cmdFormatWithConsoles(): Promise<void> {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
@@ -542,6 +546,10 @@ async function cmdFormatWithConsoles(): Promise<void> {
   }
 
   const doc = editor.document;
+  if (!FORMAT_WITH_CONSOLES_EXTENSIONS.has(path.extname(doc.fileName).toLowerCase())) {
+    vscode.window.showWarningMessage('Pro Keybindings: este comando solo funciona en archivos .ts/.tsx/.js/.jsx/.mjs/.cjs/.vue/.svelte/.astro.');
+    return;
+  }
   const eol = doc.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
   const indentOf = (s: string) => s.slice(0, s.length - s.trimStart().length);
 
@@ -661,23 +669,44 @@ async function cmdFormatWithConsoles(): Promise<void> {
     }
   }
 
-  if (inserts.length === 0 && removedCount === 0) {
-    vscode.window.showInformationMessage('Pro Keybindings: no se encontraron catch, returns ni condiciones para instrumentar.');
-    return;
-  }
-
   // Apply from bottom to top so earlier indices stay valid while splicing.
   inserts.sort((a, b) => b.targetLine - a.targetLine);
   for (const ins of inserts) {
     lines.splice(ins.targetLine, 0, `${ins.indent}${ins.statement}`);
   }
 
+  // Trim trailing whitespace and collapse runs of blank lines to a single one —
+  // real re-indentation is left to the document formatter below, which already
+  // knows the project's tab/space and brace-style conventions.
+  const trimmedLines = lines.map((line) => line.replace(/[ \t]+$/, ''));
+  const collapsedLines: string[] = [];
+  for (const line of trimmedLines) {
+    if (line === '' && collapsedLines[collapsedLines.length - 1] === '') {
+      continue;
+    }
+    collapsedLines.push(line);
+  }
+
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, lines.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, collapsedLines.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
+
+  // Let the language's own formatter fix indentation/brace alignment, and organize
+  // (drop unused) imports — far more reliable than reimplementing a formatter by hand.
+  try {
+    await vscode.commands.executeCommand('editor.action.organizeImports');
+  } catch {
+    // No import-organizing provider for this language — nothing to do.
+  }
+  try {
+    await vscode.commands.executeCommand('editor.action.formatDocument');
+  } catch {
+    // No formatter registered/installed for this language — leave indentation as-is.
+  }
+
   vscode.window.showInformationMessage(
-    `Pro Keybindings: ${removedCount} console.log eliminados, ${inserts.length} console.error/warn/info agregados.`
+    `Pro Keybindings: ${removedCount} console.log eliminados, ${inserts.length} console.error/warn/info agregados, archivo formateado.`
   );
 }
 

@@ -58,14 +58,18 @@ Pro VSCode Keybindings is a minimal set of keyboard shortcuts, plus a handful of
 
 ## Context menu (Editor and Explorer)
 
-**♻️ Clean consoles** (`Ctrl+F6` inside a JS/TS/JSX/TSX file, or right-click → "♻️ Clean consoles" — available in both the editor and the Explorer) standardizes console usage in the file:
+**♻️ Clean consoles** (`Ctrl+F6`, or right-click → "♻️ Clean consoles" — available in both the editor and the Explorer, only for `.ts` `.tsx` `.js` `.jsx` `.mjs` `.cjs` `.vue` `.svelte` `.astro`) standardizes console usage in the file:
 
 - Removes every temporary/debug `console.log(...)`.
 - Guarantees a `console.error("Function: error.", err)` inside every `catch`.
 - Adds `console.warn("Function: condition not met...")` before bare early-return guards and empty `if`/`else`/`switch` branches.
 - Adds `console.info("Function: completed successfully.")` before the final return of `load*`, `init*`, `fetch*`, or `create*`-style functions.
+- Strips trailing whitespace and collapses consecutive blank lines into one.
+- Reformats the file with the language's own formatter (indentation, tabs vs. spaces, brace alignment) and organizes/drops unused imports, via VS Code's native `editor.action.formatDocument` / `editor.action.organizeImports` — no hand-rolled formatter.
 
-Safe to run again: it first removes the lines it inserted on the previous run before re-instrumenting.
+Doesn't change code logic. Safe to run again: it first removes the lines it inserted on the previous run before re-instrumenting.
+
+> ℹ️ Formatting and import organizing depend on the formatter/language service installed for that file (TypeScript/JavaScript ships with VS Code; other languages need their own extension). Removing dead code or unused variables is not automated — doing that blindly can change behavior.
 
 ## Why people keep it installed
 
