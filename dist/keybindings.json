@@ -68,9 +68,9 @@
     "when": "editorTextFocus && !editorReadonly"
   },
   {
-    "key": "alt+shift+enter",
-    "command": "proKeybindings.openSelectedFolderInNewWindow",
-    "when": "filesExplorerFocus"
+    "key": "ctrl+f6",
+    "command": "proKeybindings.formatWithConsoles",
+    "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/"
   },
   {
     "key": "ctrl+shift+a",

@@ -38,5 +38,10 @@
     "key": "alt+up",
     "command": "editor.action.moveLinesUpAction",
     "when": "editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "ctrl+f6",
+    "command": "proKeybindings.formatWithConsoles",
+    "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/"
   }
 ]

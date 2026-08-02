@@ -1,8 +1,23 @@
-# 🚀 Pro VSCode Keybindings
+<p align="right"><a href="README.en.md">English</a> · <strong>Español</strong></p>
 
-*[🌐 English](README.en.md)*
+<p align="center">
+  <img src="https://avatars.githubusercontent.com/u/242724234?v=4" width="84" height="84" alt="Alvaro Siles" style="border-radius:50%" />
+</p>
 
-Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteligentes para Git y para ejecutar proyectos. Las mismas teclas en Windows, Linux y macOS.
+<h1 align="center">🚀 Pro VSCode Keybindings</h1>
+<p align="center">Los atajos que VS Code debería traer de fábrica.</p>
+
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings"><img alt="Marketplace" src="https://img.shields.io/badge/marketplace-Pro%20VSCode%20Keybindings-7c5cff" /></a>
+  <a href="./privacity.md"><img alt="Privacidad" src="https://img.shields.io/badge/privacidad-cero%20telemetr%C3%ADa-4fd1c5" /></a>
+  <img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-4fd1c5" />
+</p>
+
+<p align="center"><strong><a href="https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings">→ Instalar desde el Marketplace</a></strong></p>
+
+---
+
+Pro VSCode Keybindings es un set mínimo de atajos de teclado, más un puñado de comandos inteligentes para Git y para correr proyectos. Nada de configuración, nada de menús: instalás y ya tenés las teclas que faltaban. Las mismas combinaciones funcionan igual en Windows, Linux y macOS.
 
 ## Atajos de teclado
 
@@ -31,7 +46,9 @@ Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteli
 | Tecla | Acción |
 | --- | --- |
 | `Ctrl+R` | Abrir el archivo/carpeta seleccionado como proyecto en una ventana nueva |
-| `Alt+Shift+Enter` / `Ctrl+Shift+A` | Abrir la carpeta seleccionada en el Explorador en una ventana nueva |
+| `Ctrl+Shift+A` | 🚀 Abrir la carpeta seleccionada en el Explorador en una ventana nueva |
+
+"🚀 Abrir en VS Code" también aparece como ícono en la barra de título del panel Explorer y en su menú contextual (click derecho), con el atajo `Ctrl+Shift+A` visible al lado.
 
 **Smart Run (`Ctrl+F12`)** abre un selector para correr el proyecto de la forma correcta: Live Server para HTML, `npm run web` para React, Start Debugging para Java, `npm start` para React Native, `vsce package` para una extensión de VS Code.
 
@@ -39,13 +56,26 @@ Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteli
 
 > ⚠️ `Ctrl+F9` hace push al remoto sin pedir confirmación — revisá en qué rama estás antes de usarlo.
 
-## Menú contextual del editor
+## Menú contextual (Editor y Explorador)
 
-**🧹 Formatear con consoles** — hacé click derecho dentro de un archivo JS/TS/JSX/TSX y agrega un `console.log` justo antes de cada `return` del archivo, para que puedas rastrear qué rama se ejecuta realmente en tiempo de ejecución. Se puede ejecutar de nuevo sin problema: las líneas ya instrumentadas se saltean.
+**♻️ Limpiar consolas** (`Ctrl+F6` dentro de un archivo JS/TS/JSX/TSX, o click derecho → "♻️ Limpiar consolas" — disponible tanto en el editor como en el Explorador) estandariza el logging del archivo:
+
+- Elimina todo `console.log(...)` temporal o de depuración.
+- Asegura un `console.error("Función: error.", err)` dentro de cada `catch`.
+- Agrega `console.warn("Función: condición no cumplida...")` antes de guardas (`return;` sin valor) y bloques `if`/`else`/`switch` vacíos.
+- Agrega `console.info("Función: proceso finalizado correctamente.")` antes del `return` final en funciones tipo `load*`, `init*`, `fetch*` o `create*`.
+
+Se puede ejecutar de nuevo sin problema: antes de reinstrumentar, borra los mensajes que él mismo insertó en la corrida anterior.
+
+## Por qué la gente la deja instalada
+
+- **Cero fricción** — sin cuentas, sin configuración, sin curva de aprendizaje. Instalás y las teclas ya están.
+- **Liviana** — no agrega procesos en segundo plano ni ralentiza el editor.
+- **Privacidad primero** — sin telemetría, sin analytics, sin conexión a servidores externos. Ver [política de privacidad](privacity.md).
 
 ## Instalación
 
-Instalala desde el [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/vscode) — buscá **Pro VSCode Keybindings**.
+Instalala desde el [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings) — buscá **Pro VSCode Keybindings**.
 
 ## Desarrollo
 
@@ -73,6 +103,16 @@ vsce login alvarosiles   # una sola vez, requiere un PAT de Azure DevOps
 ./scripts/publish.ps1 -Message "Add debug shortcuts" -Push -Publish     # además hace push y publica en el Marketplace
 ```
 
-## Licencia
+## Sobre el desarrollador
 
-Licencia MIT
+Creada por **Alvaro Siles** — desarrollador de extensiones y herramientas de productividad para navegadores y Visual Studio Code. Pro VSCode Keybindings es un proyecto independiente y open-source, hecho y mantenido por una sola persona, a la vista de todos.
+
+- GitHub: [@alvarosiles](https://github.com/alvarosiles)
+
+---
+
+<p align="center">
+  © <a href="./LICENSE">Licencia MIT</a> · <a href="https://github.com/alvarosiles/pro-vscode-keybindings/issues">Reportar un problema</a>
+  <br />
+  Hecho con ♥ por <a href="https://github.com/alvarosiles">Alvaro Siles</a>
+</p>

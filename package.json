@@ -81,11 +81,12 @@
       },
       {
         "command": "proKeybindings.formatWithConsoles",
-        "title": "🧹 Formatear con consoles"
+        "title": "♻️ Limpiar consolas"
       },
       {
         "command": "proKeybindings.openSelectedFolderInNewWindow",
-        "title": "Pro Keybindings: Open Selected Folder In New Window"
+        "title": "🚀 Abrir en VS Code",
+        "icon": "$(rocket)"
       }
     ],
     "menus": {
@@ -94,6 +95,25 @@
           "command": "proKeybindings.formatWithConsoles",
           "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/",
           "group": "1_modification"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "proKeybindings.openSelectedFolderInNewWindow",
+          "when": "filesExplorerFocus",
+          "group": "navigation"
+        },
+        {
+          "command": "proKeybindings.formatWithConsoles",
+          "when": "filesExplorerFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "proKeybindings.openSelectedFolderInNewWindow",
+          "when": "view == workbench.explorer.fileView",
+          "group": "navigation"
         }
       ]
     },
@@ -167,9 +187,9 @@
         "when": "editorTextFocus && !editorReadonly"
       },
       {
-        "key": "alt+shift+enter",
-        "command": "proKeybindings.openSelectedFolderInNewWindow",
-        "when": "filesExplorerFocus"
+        "key": "ctrl+f6",
+        "command": "proKeybindings.formatWithConsoles",
+        "when": "editorTextFocus && resourceLangId =~ /^(javascript|typescript|javascriptreact|typescriptreact)$/"
       },
       {
         "key": "ctrl+shift+a",

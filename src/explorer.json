@@ -1,10 +1,5 @@
 [
   {
-    "key": "alt+shift+enter",
-    "command": "proKeybindings.openSelectedFolderInNewWindow",
-    "when": "filesExplorerFocus"
-  },
-  {
     "key": "ctrl+shift+a",
     "command": "proKeybindings.openSelectedFolderInNewWindow",
     "when": "filesExplorerFocus"

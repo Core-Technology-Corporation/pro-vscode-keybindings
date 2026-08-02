@@ -401,12 +401,16 @@ async function cmdCommitMessagePicker(): Promise<void> {
 
 const CONSOLE_MARKER = '[ProKeybindings]';
 const RETURN_REGEX = /^(\s*)return\b/;
+const RETURN_BARE_REGEX = /^\s*return\s*;?\s*$/;
+const CONSOLE_LOG_LINE_REGEX = /^\s*console\.log\(.*\)\s*;?\s*$/;
+const FUNC_DECL_REGEX = /^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/;
+const FUNC_ARROW_REGEX = /^\s*(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s+)?\([^)]*\)\s*(?::[^=]+)?=>\s*\{?\s*$/;
+const SUCCESS_NAME_REGEX = /^(load|init|initialize|fetch|create)/i;
 const ELSE_IF_PREFIX = /^(\s*)\}?\s*else if\s*\(/;
 const IF_PREFIX = /^(\s*)\}?\s*if\s*\(/;
 const ELSE_PREFIX = /^(\s*)\}?\s*else\b/;
 const CASE_REGEX = /^(\s*)case\s+(.+):\s*$/;
 const DEFAULT_REGEX = /^(\s*)default\s*:\s*$/;
-const GET_PARAM_REGEX = /SNavigation\.getParam\(\s*['"`]([^'"`]+)['"`]/;
 const CATCH_PREFIX = /^(\s*)\}?\s*catch\s*\(/;
 
 interface BranchMatch {
@@ -414,6 +418,8 @@ interface BranchMatch {
   label: string;
   /** True when the branch body lives on the following line(s) — the log goes right after it. */
   isBlock: boolean;
+  /** The statement written inline after the condition, when isBlock is false (e.g. "return;"). */
+  singleLineBody?: string;
 }
 
 /** Finds the ")" that closes the "(" implicitly opened right before `fromIndex`, honoring nested parens. */
@@ -452,19 +458,22 @@ function matchIfLike(text: string, prefixRegex: RegExp): { indent: string; condi
 function matchBranch(text: string): BranchMatch | undefined {
   const elseIf = matchIfLike(text, ELSE_IF_PREFIX);
   if (elseIf) {
-    return { indent: elseIf.indent, label: `else if (${elseIf.condition})`, isBlock: elseIf.rest === '' || elseIf.rest === '{' };
+    const isBlock = elseIf.rest === '' || elseIf.rest === '{';
+    return { indent: elseIf.indent, label: `else if (${elseIf.condition})`, isBlock, singleLineBody: isBlock ? undefined : elseIf.rest };
   }
 
   const ifLike = matchIfLike(text, IF_PREFIX);
   if (ifLike) {
-    return { indent: ifLike.indent, label: `if (${ifLike.condition})`, isBlock: ifLike.rest === '' || ifLike.rest === '{' };
+    const isBlock = ifLike.rest === '' || ifLike.rest === '{';
+    return { indent: ifLike.indent, label: `if (${ifLike.condition})`, isBlock, singleLineBody: isBlock ? undefined : ifLike.rest };
   }
 
   const elseMatch = text.match(ELSE_PREFIX);
   if (elseMatch) {
     const rest = text.slice(elseMatch[0].length).trim();
     if (!/^if\b/.test(rest)) {
-      return { indent: elseMatch[1], label: 'else', isBlock: rest === '' || rest === '{' };
+      const isBlock = rest === '' || rest === '{';
+      return { indent: elseMatch[1], label: 'else', isBlock, singleLineBody: isBlock ? undefined : rest };
     }
   }
 
@@ -509,6 +518,22 @@ function matchCatch(text: string): CatchMatch | undefined {
   return { indent: m[1], paramName, isBlock: rest === '' || rest === '{' };
 }
 
+interface FuncFrame {
+  name: string;
+  openDepth: number;
+  bodyIndent: string | null;
+}
+
+/**
+ * Standardizes console usage in the active file:
+ * - drops every plain `console.log(...)` (temporary/debug noise, never kept);
+ * - guarantees a `console.error("Func: error.", err)` inside every `catch`;
+ * - adds `console.warn("Func: descripción.")` before bare early-return guards
+ *   and empty if/else/switch branches;
+ * - adds `console.info("Func: proceso finalizado correctamente.")` before the
+ *   final return of load/init/fetch/create-style functions.
+ * Re-running is idempotent: lines this tool inserted before are removed first.
+ */
 async function cmdFormatWithConsoles(): Promise<void> {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
@@ -517,23 +542,26 @@ async function cmdFormatWithConsoles(): Promise<void> {
   }
 
   const doc = editor.document;
-  const fileName = path.basename(doc.fileName);
   const eol = doc.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+  const indentOf = (s: string) => s.slice(0, s.length - s.trimStart().length);
 
-  // Start from a clean slate: drop every console.* line this tool previously inserted,
-  // so re-running always reflects the current shape of the code instead of piling up.
   const isOwnConsoleLine = (line: string): boolean => {
     const t = line.trim();
     return t.startsWith('console.') && t.includes(CONSOLE_MARKER);
   };
   const originalLines = doc.getText().split(/\r\n|\n/);
-  const lines = originalLines.filter((line) => !isOwnConsoleLine(line));
-  const removedCount = originalLines.length - lines.length;
+  let removedCount = 0;
+  const lines = originalLines.filter((line) => {
+    const drop = isOwnConsoleLine(line) || CONSOLE_LOG_LINE_REGEX.test(line);
+    if (drop) removedCount++;
+    return !drop;
+  });
 
   const inserts: { targetLine: number; indent: string; statement: string }[] = [];
 
   /** Places `statement` either right before line `i` (single-line branch) or as the first line of its block. */
   const placeStatement = (i: number, ownIndent: string, isBlock: boolean, statement: string) => {
+    const keyword = statement.split('(')[0];
     if (!isBlock) {
       inserts.push({ targetLine: i, indent: ownIndent, statement });
       return;
@@ -543,32 +571,70 @@ async function cmdFormatWithConsoles(): Promise<void> {
       return;
     }
     const nextText = lines[nextIndex];
-    const nextIndent = nextText.slice(0, nextText.length - nextText.trimStart().length);
+    const nextIndent = indentOf(nextText);
     if (!nextText.trim() || nextIndent.length <= ownIndent.length) {
       return;
+    }
+    if (nextText.trim().startsWith(keyword)) {
+      return; // already has an equivalent console call — avoid a duplicate.
     }
     inserts.push({ targetLine: nextIndex, indent: nextIndent, statement });
   };
 
+  const stack: FuncFrame[] = [];
+  let depth = 0;
+
   for (let i = 0; i < lines.length; i++) {
     const text = lines[i];
-    const trimmed = text.trimStart();
+    const trimmed = text.trim();
+
+    const funcMatch = trimmed && (text.match(FUNC_DECL_REGEX) || text.match(FUNC_ARROW_REGEX));
+    const opens = (text.match(/\{/g) || []).length;
+    const closes = (text.match(/\}/g) || []).length;
+
+    if (funcMatch) {
+      stack.push({ name: funcMatch[1], openDepth: depth + opens, bodyIndent: null });
+    }
+    depth += opens - closes;
+    while (stack.length && depth < stack[stack.length - 1].openDepth) {
+      stack.pop();
+    }
+
+    const current = stack.length ? stack[stack.length - 1] : undefined;
+    if (current && current.bodyIndent === null && trimmed && !funcMatch) {
+      current.bodyIndent = indentOf(text);
+    }
 
     if (!trimmed || trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
       continue;
     }
 
-    const returnMatch = text.match(RETURN_REGEX);
-    if (returnMatch) {
-      const message = `${CONSOLE_MARKER} ${fileName}:${i + 1} -> render`;
-      inserts.push({ targetLine: i, indent: returnMatch[1], statement: `console.log(${JSON.stringify(message)});` });
-      continue;
-    }
+    const funcLabel = current ? current.name : 'archivo';
 
     const catchMatch = matchCatch(text);
     if (catchMatch) {
-      const statement = `console.error(${JSON.stringify(`${CONSOLE_MARKER} Error al cargar los datos:`)}, ${catchMatch.paramName});`;
+      const statement = `console.error(${JSON.stringify(`${CONSOLE_MARKER} ${funcLabel}: error.`)}, ${catchMatch.paramName});`;
       placeStatement(i, catchMatch.indent, catchMatch.isBlock, statement);
+      continue;
+    }
+
+    if (RETURN_BARE_REGEX.test(text)) {
+      const indent = indentOf(text);
+      const prevText = lines[i - 1] ?? '';
+      if (!prevText.trim().startsWith('console.warn')) {
+        const statement = `console.warn(${JSON.stringify(`${CONSOLE_MARKER} ${funcLabel}: condición no cumplida, se cancela.`)});`;
+        inserts.push({ targetLine: i, indent, statement });
+      }
+      continue;
+    }
+
+    const returnMatch = text.match(RETURN_REGEX);
+    if (returnMatch && current && current.bodyIndent === returnMatch[1] && SUCCESS_NAME_REGEX.test(current.name)) {
+      const prevText = lines[i - 1] ?? '';
+      if (!prevText.trim().startsWith('console.info')) {
+        const statement = `console.info(${JSON.stringify(`${CONSOLE_MARKER} ${current.name}: proceso finalizado correctamente.`)});`;
+        inserts.push({ targetLine: i, indent: returnMatch[1], statement });
+      }
       continue;
     }
 
@@ -577,16 +643,26 @@ async function cmdFormatWithConsoles(): Promise<void> {
       continue;
     }
 
-    const getParamMatch = branch.label.match(GET_PARAM_REGEX);
-    const statement = getParamMatch
-      ? `console.error(${JSON.stringify(`${CONSOLE_MARKER} Error no se encontró el parámetro: ${getParamMatch[1]}`)});`
-      : `console.warn(${JSON.stringify(`${CONSOLE_MARKER} ${fileName}:${i + 1} -> ${branch.label}`)});`;
+    if (!branch.isBlock && RETURN_BARE_REGEX.test(branch.singleLineBody ?? '')) {
+      const statement = `console.warn(${JSON.stringify(`${CONSOLE_MARKER} ${funcLabel}: ${branch.label} sin motivo indicado.`)});`;
+      inserts.push({ targetLine: i, indent: branch.indent, statement });
+      continue;
+    }
 
-    placeStatement(i, branch.indent, branch.isBlock, statement);
+    if (branch.isBlock) {
+      const nextText = lines[i + 1] ?? '';
+      const nextTrim = nextText.trim();
+      const isEmptyBlock = nextTrim === '}' || nextTrim === '';
+      const isBareReturnBlock = RETURN_BARE_REGEX.test(nextText);
+      if (isEmptyBlock || isBareReturnBlock) {
+        const statement = `console.warn(${JSON.stringify(`${CONSOLE_MARKER} ${funcLabel}: ${branch.label} sin motivo indicado.`)});`;
+        placeStatement(i, branch.indent, true, statement);
+      }
+    }
   }
 
   if (inserts.length === 0 && removedCount === 0) {
-    vscode.window.showInformationMessage('Pro Keybindings: no se encontraron "return" ni condiciones para instrumentar.');
+    vscode.window.showInformationMessage('Pro Keybindings: no se encontraron catch, returns ni condiciones para instrumentar.');
     return;
   }
 
@@ -601,7 +677,7 @@ async function cmdFormatWithConsoles(): Promise<void> {
   workspaceEdit.replace(doc.uri, fullRange, lines.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
   vscode.window.showInformationMessage(
-    `Pro Keybindings: ${removedCount} console.* anteriores eliminados, ${inserts.length} nuevos agregados.`
+    `Pro Keybindings: ${removedCount} console.log eliminados, ${inserts.length} console.error/warn/info agregados.`
   );
 }
 
