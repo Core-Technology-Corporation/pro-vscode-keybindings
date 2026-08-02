@@ -37,6 +37,8 @@ Pro VSCode Keybindings is a minimal set of keyboard shortcuts, plus a handful of
 | `Ctrl+F9` | Commit Message Picker → pick title + description, then **commits and pushes** |
 | `Ctrl+F10` | Open the current folder in GitHub Desktop |
 | `Ctrl+F12` | Stop debugging *(while debugging)* / Smart Run *(otherwise)* |
+| `Ctrl+F6` | ♻️ Clean consoles *(code files only)* |
+| `F12` | ⚡ Super *(code files only — replaces "Go to Definition" in those files)* |
 | `Ctrl+Shift+;` | New terminal |
 | `Ctrl+Shift+C` | Open Claude sidebar |
 | `Ctrl+Shift+C+V` | Open Claude sessions sidebar |
@@ -70,6 +72,17 @@ Pro VSCode Keybindings is a minimal set of keyboard shortcuts, plus a handful of
 Doesn't change code logic. Safe to run again: it first removes the lines it inserted on the previous run before re-instrumenting.
 
 > ℹ️ Formatting and import organizing depend on the formatter/language service installed for that file (TypeScript/JavaScript ships with VS Code; other languages need their own extension). Removing dead code or unused variables is not automated — doing that blindly can change behavior.
+
+**⚡ Super** (`F12`, or right-click → "⚡ Super" — same extensions as "Clean consoles") does everything above plus:
+
+- Removes `console.debug(...)` and commented-out `// console.log(...)` / `// console.debug(...)` leftovers.
+- Adds a `default:` case with `console.warn(...)` + `break;` to `switch` statements that don't have one.
+- Regroups `import` statements into three blank-line-separated blocks: external, internal (`@/...`, `~/...`), and relative (`./`, `../`), preserving each import's order within its group.
+- Textually protects the line `import React, { Component } from 'react';`: if it appears exactly like that in the file, it's never touched or moved, even when `organizeImports` or the formatter would otherwise change it.
+
+> ⚠️ `F12` replaces VS Code's default "Go to Definition" shortcut — but only inside files with those extensions. In every other language, `F12` keeps working as usual.
+>
+> `⚡ Super` does **not** remove unused variables, parameters, or dead code: that requires understanding the code, not just its shape, and automating it with regex can silently break behavior. Use the project's own linter for that part (ESLint `--fix`, etc.).
 
 ## Why people keep it installed
 

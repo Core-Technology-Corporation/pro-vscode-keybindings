@@ -37,6 +37,8 @@ Pro VSCode Keybindings es un set mínimo de atajos de teclado, más un puñado d
 | `Ctrl+F9` | Commit Message Picker → elegís título + descripción, y **hace commit y push** |
 | `Ctrl+F10` | Abrir la carpeta actual en GitHub Desktop |
 | `Ctrl+F12` | Detener el debug *(mientras debuggeás)* / Smart Run *(en otro caso)* |
+| `Ctrl+F6` | ♻️ Limpiar consolas *(solo en archivos de código)* |
+| `F12` | ⚡ Super *(solo en archivos de código — reemplaza "Ir a la definición" en esos archivos)* |
 | `Ctrl+Shift+;` | Nueva terminal |
 | `Ctrl+Shift+C` | Abrir el panel lateral de Claude |
 | `Ctrl+Shift+C+V` | Abrir el panel lateral de sesiones de Claude |
@@ -70,6 +72,17 @@ Pro VSCode Keybindings es un set mínimo de atajos de teclado, más un puñado d
 No cambia la lógica del código. Se puede ejecutar de nuevo sin problema: antes de reinstrumentar, borra los mensajes que él mismo insertó en la corrida anterior.
 
 > ℹ️ El formateo y la organización de imports dependen del formateador/lenguaje instalado para ese archivo (el de TypeScript/JavaScript viene con VS Code; para otros lenguajes necesitás la extensión correspondiente). La eliminación de variables o código muerto no se automatiza — cambiar eso a ciegas puede alterar el comportamiento.
+
+**⚡ Super** (`F12`, o click derecho → "⚡ Super" — mismas extensiones que "Limpiar consolas") hace todo lo anterior y además:
+
+- Elimina `console.debug(...)` y las líneas de `// console.log(...)` / `// console.debug(...)` comentadas.
+- Agrega un caso `default:` con `console.warn(...)` + `break;` a los `switch` que no tienen uno.
+- Reagrupa los `import` en tres bloques separados por una línea en blanco: externos, internos (`@/...`, `~/...`) y relativos (`./`, `../`), preservando el orden dentro de cada grupo.
+- Protege textualmente la línea `import React, { Component } from 'react';`: si aparece exacta en el archivo, nunca se toca ni se mueve, ni siquiera cuando `organizeImports` o el formateador querrían tocarla.
+
+> ⚠️ `F12` reemplaza el atajo por defecto de VS Code "Ir a la definición" (Go to Definition) — pero solo dentro de los archivos con esas extensiones. En el resto de los lenguajes, `F12` sigue funcionando como siempre.
+>
+> `⚡ Super` **no** elimina variables, parámetros o código muerto sin usar: eso requiere entender el código, no solo su forma, y automatizarlo con regex puede romper comportamiento en silencio. Para esa parte, usá el linter del proyecto (ESLint `--fix`, etc.).
 
 ## Por qué la gente la deja instalada
 

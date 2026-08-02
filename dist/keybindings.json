@@ -73,6 +73,11 @@
     "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
   },
   {
+    "key": "f12",
+    "command": "proKeybindings.superClean",
+    "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
+  },
+  {
     "key": "ctrl+shift+a",
     "command": "proKeybindings.openSelectedFolderInNewWindow",
     "when": "filesExplorerFocus"

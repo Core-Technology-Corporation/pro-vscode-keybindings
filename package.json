@@ -84,6 +84,10 @@
         "title": "♻️ Limpiar consolas"
       },
       {
+        "command": "proKeybindings.superClean",
+        "title": "⚡ Super"
+      },
+      {
         "command": "proKeybindings.openSelectedFolderInNewWindow",
         "title": "🚀 Abrir en VS Code",
         "icon": "$(rocket)"
@@ -93,6 +97,11 @@
       "editor/context": [
         {
           "command": "proKeybindings.formatWithConsoles",
+          "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/",
+          "group": "1_modification"
+        },
+        {
+          "command": "proKeybindings.superClean",
           "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/",
           "group": "1_modification"
         }
@@ -189,6 +198,11 @@
       {
         "key": "ctrl+f6",
         "command": "proKeybindings.formatWithConsoles",
+        "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
+      },
+      {
+        "key": "f12",
+        "command": "proKeybindings.superClean",
         "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
       },
       {

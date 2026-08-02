@@ -522,7 +522,7 @@ function matchCatch(text) {
   const rest = text.slice(closeIndex + 1).trim();
   return { indent: m[1], paramName, isBlock: rest === "" || rest === "{" };
 }
-var FORMAT_WITH_CONSOLES_EXTENSIONS = /* @__PURE__ */ new Set([
+var CODE_FILE_EXTENSIONS = /* @__PURE__ */ new Set([
   ".ts",
   ".tsx",
   ".js",
@@ -533,27 +533,20 @@ var FORMAT_WITH_CONSOLES_EXTENSIONS = /* @__PURE__ */ new Set([
   ".svelte",
   ".astro"
 ]);
-async function cmdFormatWithConsoles() {
-  const editor = vscode.window.activeTextEditor;
-  if (!editor) {
-    vscode.window.showWarningMessage("Pro Keybindings: no hay ning\xFAn editor activo.");
-    return;
-  }
-  const doc = editor.document;
-  if (!FORMAT_WITH_CONSOLES_EXTENSIONS.has(path.extname(doc.fileName).toLowerCase())) {
-    vscode.window.showWarningMessage("Pro Keybindings: este comando solo funciona en archivos .ts/.tsx/.js/.jsx/.mjs/.cjs/.vue/.svelte/.astro.");
-    return;
-  }
-  const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
-  const indentOf = (s) => s.slice(0, s.length - s.trimStart().length);
+var REACT_IMPORT_GUARD = "import React, { Component } from 'react';";
+var SWITCH_PREFIX = /^(\s*)switch\s*\(/;
+var CONSOLE_DEBUG_LINE_REGEX = /^\s*console\.debug\(.*\)\s*;?\s*$/;
+var COMMENTED_CONSOLE_REGEX = /^\s*\/\/\s*console\.(log|debug)\(/;
+var IMPORT_LINE_REGEX = /^\s*import\s.+from\s+['"](.+)['"]\s*;?\s*$/;
+var indentOf = (s) => s.slice(0, s.length - s.trimStart().length);
+function cleanupConsoleLines(originalLines, opts = {}) {
   const isOwnConsoleLine = (line) => {
     const t = line.trim();
     return t.startsWith("console.") && t.includes(CONSOLE_MARKER);
   };
-  const originalLines = doc.getText().split(/\r\n|\n/);
   let removedCount = 0;
   const lines = originalLines.filter((line) => {
-    const drop = isOwnConsoleLine(line) || CONSOLE_LOG_LINE_REGEX.test(line);
+    const drop = isOwnConsoleLine(line) || CONSOLE_LOG_LINE_REGEX.test(line) || CONSOLE_DEBUG_LINE_REGEX.test(line) || opts.dropDebugComments === true && COMMENTED_CONSOLE_REGEX.test(line);
     if (drop) removedCount++;
     return !drop;
   });
@@ -649,14 +642,124 @@ async function cmdFormatWithConsoles() {
   for (const ins of inserts) {
     lines.splice(ins.targetLine, 0, `${ins.indent}${ins.statement}`);
   }
-  const trimmedLines = lines.map((line) => line.replace(/[ \t]+$/, ""));
-  const collapsedLines = [];
-  for (const line of trimmedLines) {
-    if (line === "" && collapsedLines[collapsedLines.length - 1] === "") {
+  return { lines, removedCount, insertedCount: inserts.length };
+}
+function trimAndCollapseBlankLines(lines) {
+  const trimmed = lines.map((line) => line.replace(/[ \t]+$/, ""));
+  const collapsed = [];
+  for (const line of trimmed) {
+    if (line === "" && collapsed[collapsed.length - 1] === "") {
       continue;
     }
-    collapsedLines.push(line);
+    collapsed.push(line);
   }
+  return collapsed;
+}
+function addMissingSwitchDefaults(lines) {
+  const inserts = [];
+  for (let i = 0; i < lines.length; i++) {
+    const switchMatch = lines[i].match(SWITCH_PREFIX);
+    if (!switchMatch) {
+      continue;
+    }
+    const switchIndent = switchMatch[1];
+    let depth = 0;
+    let closeIndex = -1;
+    let caseIndent = `${switchIndent}  `;
+    let hasDefault = false;
+    for (let j = i; j < lines.length; j++) {
+      const opens = (lines[j].match(/\{/g) || []).length;
+      const closes = (lines[j].match(/\}/g) || []).length;
+      depth += opens - closes;
+      const caseMatch = lines[j].match(CASE_REGEX);
+      if (caseMatch && closeIndex === -1) {
+        caseIndent = caseMatch[1];
+      }
+      if (DEFAULT_REGEX.test(lines[j])) {
+        hasDefault = true;
+      }
+      if (depth === 0 && j > i) {
+        closeIndex = j;
+        break;
+      }
+    }
+    if (closeIndex === -1 || hasDefault) {
+      continue;
+    }
+    const funcNameMatch = lines.slice(0, i).reverse().map((l) => l.match(FUNC_DECL_REGEX) || l.match(FUNC_ARROW_REGEX)).find(Boolean);
+    const funcLabel = funcNameMatch ? funcNameMatch[1] : "archivo";
+    inserts.push({
+      targetLine: closeIndex,
+      indent: caseIndent,
+      statement: `default:
+${caseIndent}  console.warn(${JSON.stringify(`${CONSOLE_MARKER} Caso no controlado en ${funcLabel}.`)});
+${caseIndent}  break;`
+    });
+  }
+  inserts.sort((a, b) => b.targetLine - a.targetLine);
+  const result = [...lines];
+  for (const ins of inserts) {
+    result.splice(ins.targetLine, 0, `${ins.indent}${ins.statement}`);
+  }
+  return { lines: result, addedCount: inserts.length };
+}
+function organizeImportGroups(lines) {
+  let end = 0;
+  while (end < lines.length) {
+    const t = lines[end].trim();
+    if (t === "" || IMPORT_LINE_REGEX.test(lines[end]) || t.startsWith("//") || t === REACT_IMPORT_GUARD) {
+      end++;
+      continue;
+    }
+    break;
+  }
+  if (end === 0) {
+    return { lines, changed: false };
+  }
+  const head = lines.slice(0, end);
+  const guardIndex = head.findIndex((l) => l.trim() === REACT_IMPORT_GUARD);
+  const sortSegment = (segment) => {
+    const external = [];
+    const internal = [];
+    const relative = [];
+    for (const line of segment) {
+      if (!line.trim()) continue;
+      const m = line.match(IMPORT_LINE_REGEX);
+      if (!m) continue;
+      const spec = m[1];
+      if (spec.startsWith(".")) relative.push(line);
+      else if (spec.startsWith("@/") || spec.startsWith("~/")) internal.push(line);
+      else external.push(line);
+    }
+    const groups = [external, internal, relative].filter((g) => g.length > 0);
+    return groups.map((g) => g.join("\n")).join("\n\n").split("\n");
+  };
+  let newHead;
+  if (guardIndex === -1) {
+    newHead = sortSegment(head);
+  } else {
+    const before = sortSegment(head.slice(0, guardIndex));
+    const after = sortSegment(head.slice(guardIndex + 1));
+    newHead = [...before, ...before.length ? [""] : [], REACT_IMPORT_GUARD, ...after.length ? [""] : [], ...after];
+  }
+  const changed = newHead.join("\n") !== head.join("\n");
+  return { lines: [...newHead, ...lines.slice(end)], changed };
+}
+async function cmdFormatWithConsoles() {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ning\xFAn editor activo.");
+    return;
+  }
+  const doc = editor.document;
+  if (!CODE_FILE_EXTENSIONS.has(path.extname(doc.fileName).toLowerCase())) {
+    vscode.window.showWarningMessage("Pro Keybindings: este comando solo funciona en archivos .ts/.tsx/.js/.jsx/.mjs/.cjs/.vue/.svelte/.astro.");
+    return;
+  }
+  const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+  const originalLines = doc.getText().split(/\r\n|\n/);
+  const { lines, removedCount, insertedCount } = cleanupConsoleLines(originalLines);
+  const collapsedLines = trimAndCollapseBlankLines(lines);
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
   workspaceEdit.replace(doc.uri, fullRange, collapsedLines.join(eol));
@@ -670,7 +773,52 @@ async function cmdFormatWithConsoles() {
   } catch {
   }
   vscode.window.showInformationMessage(
-    `Pro Keybindings: ${removedCount} console.log eliminados, ${inserts.length} console.error/warn/info agregados, archivo formateado.`
+    `Pro Keybindings: ${removedCount} console.log eliminados, ${insertedCount} console.error/warn/info agregados, archivo formateado.`
+  );
+}
+async function cmdSuperClean() {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ning\xFAn editor activo.");
+    return;
+  }
+  const doc = editor.document;
+  if (!CODE_FILE_EXTENSIONS.has(path.extname(doc.fileName).toLowerCase())) {
+    vscode.window.showWarningMessage("Pro Keybindings: este comando solo funciona en archivos .ts/.tsx/.js/.jsx/.mjs/.cjs/.vue/.svelte/.astro.");
+    return;
+  }
+  const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n";
+  const guardPresent = doc.getText().split(/\r\n|\n/).some((l) => l.trim() === REACT_IMPORT_GUARD);
+  const originalLines = doc.getText().split(/\r\n|\n/);
+  const { lines: consoleLines, removedCount, insertedCount } = cleanupConsoleLines(originalLines, { dropDebugComments: true });
+  const { lines: withDefaults, addedCount: defaultsAdded } = addMissingSwitchDefaults(consoleLines);
+  const { lines: withImports, changed: importsRegrouped } = organizeImportGroups(withDefaults);
+  const collapsedLines = trimAndCollapseBlankLines(withImports);
+  const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
+  const workspaceEdit = new vscode.WorkspaceEdit();
+  workspaceEdit.replace(doc.uri, fullRange, collapsedLines.join(eol));
+  await vscode.workspace.applyEdit(workspaceEdit);
+  try {
+    await vscode.commands.executeCommand("editor.action.organizeImports");
+  } catch {
+  }
+  try {
+    await vscode.commands.executeCommand("editor.action.formatDocument");
+  } catch {
+  }
+  if (guardPresent) {
+    const currentLines = doc.getText().split(/\r\n|\n/);
+    if (!currentLines.some((l) => l.trim() === REACT_IMPORT_GUARD)) {
+      const candidateIndex = currentLines.findIndex((l) => /from\s+['"]react['"]/.test(l) && l.includes("Component"));
+      if (candidateIndex !== -1) {
+        const restoreEdit = new vscode.WorkspaceEdit();
+        restoreEdit.replace(doc.uri, doc.lineAt(candidateIndex).range, REACT_IMPORT_GUARD);
+        await vscode.workspace.applyEdit(restoreEdit);
+      }
+    }
+  }
+  vscode.window.showInformationMessage(
+    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, archivo formateado.`
   );
 }
 async function cmdOpenAsNewProject(uri) {
@@ -713,6 +861,7 @@ function activate(context) {
     vscode.commands.registerCommand("proKeybindings.openGitHubDesktop", cmdOpenGitHubDesktop),
     vscode.commands.registerCommand("proKeybindings.commitMessagePicker", cmdCommitMessagePicker),
     vscode.commands.registerCommand("proKeybindings.formatWithConsoles", cmdFormatWithConsoles),
+    vscode.commands.registerCommand("proKeybindings.superClean", cmdSuperClean),
     vscode.commands.registerCommand("proKeybindings.openAsNewProject", cmdOpenAsNewProject),
     vscode.commands.registerCommand("proKeybindings.openSelectedFolderInNewWindow", cmdOpenSelectedFolderInNewWindow)
   );

@@ -43,5 +43,10 @@
     "key": "ctrl+f6",
     "command": "proKeybindings.formatWithConsoles",
     "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
+  },
+  {
+    "key": "f12",
+    "command": "proKeybindings.superClean",
+    "when": "editorTextFocus && resourceExtname =~ /\\.(ts|tsx|js|jsx|mjs|cjs|vue|svelte|astro)$/"
   }
 ]
