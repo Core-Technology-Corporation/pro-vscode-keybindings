@@ -1,84 +1,78 @@
 # 🚀 Pro VSCode Keybindings
 
-*[🌐 Español](README.es.md)*
+*[🌐 English](README.en.md)*
 
-Minimal keyboard shortcuts for Visual Studio Code, plus a few smart commands for Git and running projects. Same keys on Windows, Linux and macOS.
+Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteligentes para Git y para ejecutar proyectos. Las mismas teclas en Windows, Linux y macOS.
 
-<p align="center">
+## Atajos de teclado
 
- 
-
-</p>
-
-## Keybindings
-
-| Key | Action |
+| Tecla | Acción |
 | --- | --- |
-| `Ctrl+1` | Comment / uncomment line |
-| `Ctrl+A` | Select all |
-| `Shift+Alt+↓` / `↑` | Duplicate line down / up |
-| `Alt+↓` / `↑` | Move line down / up |
-| `Ctrl+F1` | Open your global `settings.json` |
-| `Ctrl+F2` | Open your global `keybindings.json` |
-| `Ctrl+F3` | Toggle fold (collapse/expand code block) |
-| `Ctrl+F4` | Join lines |
-| `Ctrl+F5` | Run SQL *(only in `.sql` files, needs a DB client extension)* / Reload window *(otherwise)* |
-| `Ctrl+F7` | Detect project type → prints it to a terminal |
-| `Ctrl+F8` | Quick Commit → fills the commit message with `chore: update` |
-| `Ctrl+F9` | Commit Message Picker → pick title + description, then **commits and pushes** |
-| `Ctrl+F10` | Open the current folder in GitHub Desktop |
-| `Ctrl+F12` | Stop debugging *(while debugging)* / Smart Run *(otherwise)* |
-| `Ctrl+Shift+;` | New terminal |
-| `Ctrl+Shift+C` | Open Claude sidebar |
-| `Ctrl+Shift+C+V` | Open Claude sessions sidebar |
+| `Ctrl+1` | Comentar / descomentar línea |
+| `Ctrl+A` | Seleccionar todo |
+| `Shift+Alt+↓` / `↑` | Duplicar línea hacia abajo / arriba |
+| `Alt+↓` / `↑` | Mover línea hacia abajo / arriba |
+| `Ctrl+F1` | Abrir tu `settings.json` global |
+| `Ctrl+F2` | Abrir tu `keybindings.json` global |
+| `Ctrl+F3` | Plegar/desplegar bloque de código |
+| `Ctrl+F4` | Unir líneas |
+| `Ctrl+F5` | Ejecutar SQL *(solo en archivos `.sql`, requiere una extensión de cliente de base de datos)* / Recargar ventana *(en otro caso)* |
+| `Ctrl+F7` | Detectar el tipo de proyecto → lo imprime en una terminal |
+| `Ctrl+F8` | Quick Commit → completa el mensaje de commit con `chore: update` |
+| `Ctrl+F9` | Commit Message Picker → elegís título + descripción, y **hace commit y push** |
+| `Ctrl+F10` | Abrir la carpeta actual en GitHub Desktop |
+| `Ctrl+F12` | Detener el debug *(mientras debuggeás)* / Smart Run *(en otro caso)* |
+| `Ctrl+Shift+;` | Nueva terminal |
+| `Ctrl+Shift+C` | Abrir el panel lateral de Claude |
+| `Ctrl+Shift+C+V` | Abrir el panel lateral de sesiones de Claude |
 
-### File Explorer
+### Explorador de archivos
 
-| Key | Action |
+| Tecla | Acción |
 | --- | --- |
-| `Ctrl+R` | Open the selected file/folder as a new project window |
-| `Alt+Shift+Enter` / `Ctrl+Shift+A` | Open the folder currently selected in the Explorer in a new window |
+| `Ctrl+R` | Abrir el archivo/carpeta seleccionado como proyecto en una ventana nueva |
+| `Alt+Shift+Enter` / `Ctrl+Shift+A` | Abrir la carpeta seleccionada en el Explorador en una ventana nueva |
 
-**Smart Run (`Ctrl+F12`)** opens a picker to run the project the right way: Live Server for HTML, `npm run web` for React, Start Debugging for Java, `npm start` for React Native, `vsce package` for a VS Code extension.
+**Smart Run (`Ctrl+F12`)** abre un selector para correr el proyecto de la forma correcta: Live Server para HTML, `npm run web` para React, Start Debugging para Java, `npm start` para React Native, `vsce package` para una extensión de VS Code.
 
-**Commit Message Picker (`Ctrl+F9`)** opens a colored, numbered menu right in a terminal — pick a [Conventional Commits](https://www.conventionalcommits.org/) title (`feat`, `fix`, `docs`, etc.), then a matching description, and it commits and pushes immediately.
+**Commit Message Picker (`Ctrl+F9`)** abre un menú numerado y coloreado directamente en una terminal — elegís un título estilo [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, etc.), después una descripción a juego, y hace commit y push de inmediato.
 
-> ⚠️ `Ctrl+F9` pushes to the remote with no confirmation — double-check your branch before using it.
+> ⚠️ `Ctrl+F9` hace push al remoto sin pedir confirmación — revisá en qué rama estás antes de usarlo.
 
-## Editor context menu
+## Menú contextual del editor
 
-**🧹 Format with consoles** — right-click inside a JS/TS/JSX/TSX file and it inserts a `console.log` right before every `return` statement in the file, so you can trace which branch actually executes at runtime. Safe to run again: lines already instrumented are skipped.
+**🧹 Formatear con consoles** — hacé click derecho dentro de un archivo JS/TS/JSX/TSX y agrega un `console.log` justo antes de cada `return` del archivo, para que puedas rastrear qué rama se ejecuta realmente en tiempo de ejecución. Se puede ejecutar de nuevo sin problema: las líneas ya instrumentadas se saltean.
 
-## Installation
+## Instalación
 
-Install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/vscode) — search for **Pro VSCode Keybindings**.
+Instalala desde el [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/vscode) — buscá **Pro VSCode Keybindings**.
 
-## Development
+## Desarrollo
 
 ```bash
 npm install
-npm run build     # regenerates keybindings + bundles the extension
-npm run watch     # rebuild extension.js on change
+npm run build     # regenera los keybindings + empaqueta la extensión
+npm run watch     # recompila extension.js en cada cambio
 ```
 
-- **Add/change a shortcut** → edit the matching file under `src/*.json`, then `npm run build`. The build fails if two entries share a key.
-- **Change smart-command logic** → edit `extension/extension.ts`, then `npm run build`.
-- Try it out with `F5` (Extension Development Host), or `./scripts/test_local.sh` (Linux/macOS) / `./scripts/test_local.ps1` (Windows/PowerShell).
+- **Agregar/cambiar un atajo** → editá el archivo correspondiente en `src/*.json`, después `npm run build`. El build falla si dos entradas comparten la misma tecla.
+- **Cambiar la lógica de los comandos inteligentes** → editá `extension/extension.ts`, después `npm run build`.
+- Probalo con `F5` (Extension Development Host), o con `./scripts/test_local.sh` (Linux/macOS) / `./scripts/test_local.ps1` (Windows/PowerShell).
 
-`src/*.json` are the source of truth — `scripts/build.js` merges them into `dist/keybindings.json` and `package.json`'s `contributes.keybindings`, since VS Code only reads keybindings from `package.json`.
+`src/*.json` son la fuente de verdad — `scripts/build.js` los combina en `dist/keybindings.json` y en `contributes.keybindings` de `package.json`, ya que VS Code solo lee keybindings desde `package.json`.
 
-## Publishing (maintainers)
+## Publicación (mantenedores)
 
 ```bash
 npm install -g @vscode/vsce
-vsce login alvarosiles   # one-time, needs an Azure DevOps PAT
+vsce login alvarosiles   # una sola vez, requiere un PAT de Azure DevOps
 ```
 
 ```powershell
-./scripts/publish.ps1 -Message "Add debug shortcuts"                    # build, bump version, commit, package
-./scripts/publish.ps1 -Message "Add debug shortcuts" -Push -Publish     # also push + publish to the Marketplace
+./scripts/publish.ps1 -Message "Add debug shortcuts"                    # build, sube versión, commit, empaqueta
+./scripts/publish.ps1 -Message "Add debug shortcuts" -Push -Publish     # además hace push y publica en el Marketplace
 ```
 
-## License
+## Licencia
 
-MIT License
+Licencia MIT
