@@ -14,7 +14,7 @@
 - Does not send data to external servers.
 - Does not use analytics or telemetry.
 - Does not access the internet except for the normal `git push`/`git pull` operations you initiate yourself with your own credentials.
-- Does not read or collect the contents of your files beyond what's needed to run the command you invoked (e.g., inserting a `console.log` when using "Format with consoles").
+- Does not read or collect the contents of your files beyond what's needed to run the command you invoked (e.g., standardizing the `console.*` calls of the open file when using "♻️ Clean consoles" or "⚡ Super").
 
 ## Permissions
 
