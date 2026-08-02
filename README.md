@@ -37,7 +37,7 @@ Minimal keyboard shortcuts for Visual Studio Code, plus a few smart commands for
 | Key | Action |
 | --- | --- |
 | `Ctrl+R` | Open the selected file/folder as a new project window |
-| `Alt+Shift+Enter` | Open the folder currently selected in the Explorer in a new window |
+| `Alt+Shift+Enter` / `Ctrl+Shift+A` | Open the folder currently selected in the Explorer in a new window |
 
 **Smart Run (`Ctrl+F12`)** opens a picker to run the project the right way: Live Server for HTML, `npm run web` for React, Start Debugging for Java, `npm start` for React Native, `vsce package` for a VS Code extension.
 

@@ -31,7 +31,7 @@ Atajos de teclado mínimos para Visual Studio Code, más algunos comandos inteli
 | Tecla | Acción |
 | --- | --- |
 | `Ctrl+R` | Abrir el archivo/carpeta seleccionado como proyecto en una ventana nueva |
-| `Alt+Shift+Enter` | Abrir la carpeta seleccionada en el Explorador en una ventana nueva |
+| `Alt+Shift+Enter` / `Ctrl+Shift+A` | Abrir la carpeta seleccionada en el Explorador en una ventana nueva |
 
 **Smart Run (`Ctrl+F12`)** abre un selector para correr el proyecto de la forma correcta: Live Server para HTML, `npm run web` para React, Start Debugging para Java, `npm start` para React Native, `vsce package` para una extensión de VS Code.
 

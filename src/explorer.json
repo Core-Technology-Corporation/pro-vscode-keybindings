@@ -5,6 +5,11 @@
     "when": "filesExplorerFocus"
   },
   {
+    "key": "ctrl+shift+a",
+    "command": "proKeybindings.openSelectedFolderInNewWindow",
+    "when": "filesExplorerFocus"
+  },
+  {
     "key": "ctrl+r",
     "command": "proKeybindings.openAsNewProject",
     "when": "filesExplorerFocus"
