@@ -49,4 +49,11 @@ Y cuando estés conforme:
 
 ./scripts/publish.ps1 -Message "Add debug shortcuts" -Push -Publish
 Ya quedó commiteado (5894456), junto con la sección de README actualizada. No lo ejecuté ni hice push/publish — eso queda para cuando vos lo decidas.
+ordenar las importaciones
+organizar importaciones
+quitar las importaciones sin usar
+Agregar todas las importaciones que faltan
+Quitar todo el código sin utilizar
+Corregir todos los problemas de JS/TS que se pueden corregir
+Dar formato al documento
 
