@@ -815,12 +815,15 @@ function cleanupObjectLiterals(lines: string[]): { lines: string[]; changed: boo
     const original = line;
 
     line = line
-      .replace(/,+\s*}}/g, ' }}')
+      .replace(/,+\s*}}/g, '}}')
       .replace(/,+\s*}/g, '}')
       .replace(/,+\s*]/g, ']')
       .replace(/,+\s*\)/g, ')')
       .replace(/{\s+}/g, '{}')
       .replace(/\[\s+]/g, '[]')
+      .replace(/\{\s+/g, '{')
+      .replace(/\s+}}/g, '}}')
+      .replace(/\s+}/g, '}')
       .replace(/\s+,\s+/g, ', ')
       .replace(/,\s*,+/g, ',')
       .replace(/:\s+/g, ': ')

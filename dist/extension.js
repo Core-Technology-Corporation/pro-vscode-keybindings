@@ -738,7 +738,7 @@ function cleanupObjectLiterals(lines) {
   let changed = false;
   const result = lines.map((line) => {
     const original = line;
-    line = line.replace(/,+\s*}}/g, " }}").replace(/,+\s*}/g, "}").replace(/,+\s*]/g, "]").replace(/,+\s*\)/g, ")").replace(/{\s+}/g, "{}").replace(/\[\s+]/g, "[]").replace(/\s+,\s+/g, ", ").replace(/,\s*,+/g, ",").replace(/:\s+/g, ": ").replace(/\s+:/g, ":");
+    line = line.replace(/,+\s*}}/g, "}}").replace(/,+\s*}/g, "}").replace(/,+\s*]/g, "]").replace(/,+\s*\)/g, ")").replace(/{\s+}/g, "{}").replace(/\[\s+]/g, "[]").replace(/\{\s+/g, "{").replace(/\s+}}/g, "}}").replace(/\s+}/g, "}").replace(/\s+,\s+/g, ", ").replace(/,\s*,+/g, ",").replace(/:\s+/g, ": ").replace(/\s+:/g, ":");
     if (line !== original) changed = true;
     return line;
   });
