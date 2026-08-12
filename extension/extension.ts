@@ -789,6 +789,25 @@ function normalizeIndentation(lines: string[]): { lines: string[]; changed: bool
   return { lines: result, changed };
 }
 
+/** Removes spaces before closing brackets/tags: }) > /> ] ; etc. */
+function cleanupClosingBrackets(lines: string[]): { lines: string[]; changed: boolean } {
+  let changed = false;
+  const result = lines.map((line) => {
+    const original = line;
+    line = line
+      .replace(/\s+\}/g, '}')
+      .replace(/\s+\)/g, ')')
+      .replace(/\s+\]/g, ']')
+      .replace(/\s+;/g, ';')
+      .replace(/\s+>/g, '>')
+      .replace(/\s+\/>/g, '/>')
+      .replace(/\s+\?>/g, '?>');
+    if (line !== original) changed = true;
+    return line;
+  });
+  return { lines: result, changed };
+}
+
 /** Adds a `default:` case with a console.warn to switch statements that don't have one. */
 function addMissingSwitchDefaults(lines: string[]): { lines: string[]; addedCount: number } {
   const inserts: { targetLine: number; indent: string; statement: string }[] = [];
@@ -980,10 +999,11 @@ async function cmdSuperClean(): Promise<void> {
   const { lines: withImports, changed: importsRegrouped } = organizeImportGroups(withDefaults);
   const collapsedLines = trimAndCollapseBlankLines(withImports);
   const { lines: normalizedLines, changed: indentNormalized } = normalizeIndentation(collapsedLines);
+  const { lines: cleanedLines, changed: bracketsChanged } = cleanupClosingBrackets(normalizedLines);
 
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, normalizedLines.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, cleanedLines.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
 
   try {
@@ -1006,7 +1026,7 @@ async function cmdSuperClean(): Promise<void> {
   vscode.window.showInformationMessage(
     `Pro Keybindings ⚡ Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ` +
       `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, importaciones faltantes agregadas, ` +
-      `indentación ${indentNormalized ? 'normalizada' : 'sin cambios'}, archivo formateado.`
+      `indentación ${indentNormalized ? 'normalizada' : 'sin cambios'}, espacios antes de cierres ${bracketsChanged ? 'eliminados' : 'sin cambios'}, archivo formateado.`
   );
 }
 
