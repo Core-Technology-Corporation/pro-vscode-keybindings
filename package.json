@@ -103,6 +103,10 @@
         "command": "proKeybindings.openSelectedFolderInNewWindow",
         "title": "🚀 Abrir en VS Code",
         "icon": "$(rocket)"
+      },
+      {
+        "command": "proKeybindings.cleanupProjectImports",
+        "title": "🧹 Limpiar importaciones en todo el proyecto"
       }
     ],
     "menus": {

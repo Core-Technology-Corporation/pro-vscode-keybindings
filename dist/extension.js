@@ -881,6 +881,65 @@ async function cmdOpenSelectedFolderInNewWindow() {
     forceNewWindow: true
   });
 }
+async function cmdCleanupProjectImports() {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showWarningMessage("Pro Keybindings: no hay ninguna carpeta de proyecto abierta.");
+    return;
+  }
+  const rootPath = workspaceFolders[0].uri.fsPath;
+  const files = [];
+  const codeExtensions = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".vue", ".svelte", ".astro"];
+  const findFiles = async (dir) => {
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name.startsWith(".") || entry.name === "node_modules" || entry.name === "dist") {
+          continue;
+        }
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          await findFiles(fullPath);
+        } else if (codeExtensions.some((ext) => entry.name.endsWith(ext))) {
+          files.push(vscode.Uri.file(fullPath));
+        }
+      }
+    } catch {
+    }
+  };
+  await findFiles(rootPath);
+  if (files.length === 0) {
+    vscode.window.showWarningMessage("Pro Keybindings: no se encontraron archivos de c\xF3digo.");
+    return;
+  }
+  let processed = 0;
+  for (const fileUri of files) {
+    try {
+      const doc = await vscode.workspace.openTextDocument(fileUri);
+      const editor = await vscode.window.showTextDocument(doc, { preview: true });
+      const originalReactLines = findReactImportLines(doc.getText());
+      try {
+        await vscode.commands.executeCommand("editor.action.organizeImports");
+      } catch {
+      }
+      try {
+        await vscode.commands.executeCommand("editor.action.formatDocument");
+      } catch {
+      }
+      await restoreProtectedReactImports(doc, originalReactLines);
+      if (doc.isDirty) {
+        await doc.save();
+        processed++;
+      }
+      await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+    } catch (err) {
+      console.error(`Error procesando ${fileUri.fsPath}:`, err?.message);
+    }
+  }
+  vscode.window.showInformationMessage(
+    `Pro Keybindings: ${processed} archivos procesados, importaciones organizadas en todo el proyecto.`
+  );
+}
 function activate(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand("proKeybindings.detectProjectType", cmdDetectProjectType),
@@ -891,7 +950,8 @@ function activate(context) {
     vscode.commands.registerCommand("proKeybindings.formatWithConsoles", cmdFormatWithConsoles),
     vscode.commands.registerCommand("proKeybindings.superClean", cmdSuperClean),
     vscode.commands.registerCommand("proKeybindings.openAsNewProject", cmdOpenAsNewProject),
-    vscode.commands.registerCommand("proKeybindings.openSelectedFolderInNewWindow", cmdOpenSelectedFolderInNewWindow)
+    vscode.commands.registerCommand("proKeybindings.openSelectedFolderInNewWindow", cmdOpenSelectedFolderInNewWindow),
+    vscode.commands.registerCommand("proKeybindings.cleanupProjectImports", cmdCleanupProjectImports)
   );
 }
 function deactivate() {
