@@ -871,6 +871,65 @@ function trimStringContents(lines: string[]): { lines: string[]; changed: boolea
   return { lines: result, changed };
 }
 
+/** Collapses multiline style={{...}} into a single line. */
+function collapseStyleObjects(lines: string[]): { lines: string[]; changed: boolean } {
+  let changed = false;
+  const result: string[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const styleMatch = line.match(/^(\s*)(.*)style=\{\{/);
+
+    if (!styleMatch) {
+      result.push(line);
+      i++;
+      continue;
+    }
+
+    const indent = styleMatch[1];
+    const prefix = styleMatch[2];
+    const startLine = line;
+    let collected = line.substring(line.indexOf('style={{') + 8);
+    let depth = 1;
+    let j = i + 1;
+
+    while (j < lines.length && depth > 0) {
+      const nextLine = lines[j];
+      const text = nextLine.trim();
+
+      for (const char of text) {
+        if (char === '{') depth++;
+        else if (char === '}') depth--;
+      }
+
+      if (depth > 0) {
+        collected += ' ' + text;
+      } else {
+        const endIdx = nextLine.indexOf('}');
+        if (endIdx >= 0) {
+          collected += ' ' + nextLine.substring(0, endIdx);
+        }
+        collected += nextLine.substring(nextLine.lastIndexOf('}'));
+      }
+      j++;
+    }
+
+    collected = collected
+      .replace(/\s+/g, ' ')
+      .replace(/:\s+/g, ': ')
+      .replace(/,\s+/g, ', ')
+      .trim();
+
+    const collapsedLine = `${indent}${prefix}style={{${collected}`;
+    result.push(collapsedLine);
+    changed = true;
+    i = j;
+  }
+
+  return { lines: result, changed };
+}
+
 /** Adds a `default:` case with a console.warn to switch statements that don't have one. */
 function addMissingSwitchDefaults(lines: string[]): { lines: string[]; addedCount: number } {
   const inserts: { targetLine: number; indent: string; statement: string }[] = [];
@@ -1065,10 +1124,11 @@ async function cmdSuperClean(): Promise<void> {
   const { lines: cleanedBrackets, changed: bracketsChanged } = cleanupClosingBrackets(normalizedLines);
   const { lines: cleanedObjects, changed: objectsChanged } = cleanupObjectLiterals(cleanedBrackets);
   const { lines: cleanedStrings, changed: stringsChanged } = trimStringContents(cleanedObjects);
+  const { lines: collapsedStyles, changed: stylesChanged } = collapseStyleObjects(cleanedStrings);
 
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, cleanedStrings.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, collapsedStyles.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
 
   try {
@@ -1092,7 +1152,7 @@ async function cmdSuperClean(): Promise<void> {
     `Pro Keybindings ⚡ Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ` +
       `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, importaciones faltantes agregadas, ` +
       `indentación ${indentNormalized ? 'normalizada' : 'sin cambios'}, espacios/comas ${bracketsChanged || objectsChanged ? 'limpios' : 'sin cambios'}, ` +
-      `strings ${stringsChanged ? 'trimeados' : 'sin cambios'}, archivo formateado.`
+      `strings ${stringsChanged ? 'trimeados' : 'sin cambios'}, styles ${stylesChanged ? 'colapsados' : 'sin cambios'}, archivo formateado.`
   );
 }
 

@@ -774,6 +774,50 @@ function trimStringContents(lines) {
   });
   return { lines: result, changed };
 }
+function collapseStyleObjects(lines) {
+  let changed = false;
+  const result = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const styleMatch = line.match(/^(\s*)(.*)style=\{\{/);
+    if (!styleMatch) {
+      result.push(line);
+      i++;
+      continue;
+    }
+    const indent = styleMatch[1];
+    const prefix = styleMatch[2];
+    const startLine = line;
+    let collected = line.substring(line.indexOf("style={{") + 8);
+    let depth = 1;
+    let j = i + 1;
+    while (j < lines.length && depth > 0) {
+      const nextLine = lines[j];
+      const text = nextLine.trim();
+      for (const char of text) {
+        if (char === "{") depth++;
+        else if (char === "}") depth--;
+      }
+      if (depth > 0) {
+        collected += " " + text;
+      } else {
+        const endIdx = nextLine.indexOf("}");
+        if (endIdx >= 0) {
+          collected += " " + nextLine.substring(0, endIdx);
+        }
+        collected += nextLine.substring(nextLine.lastIndexOf("}"));
+      }
+      j++;
+    }
+    collected = collected.replace(/\s+/g, " ").replace(/:\s+/g, ": ").replace(/,\s+/g, ", ").trim();
+    const collapsedLine = `${indent}${prefix}style={{${collected}`;
+    result.push(collapsedLine);
+    changed = true;
+    i = j;
+  }
+  return { lines: result, changed };
+}
 function addMissingSwitchDefaults(lines) {
   const inserts = [];
   for (let i = 0; i < lines.length; i++) {
@@ -927,9 +971,10 @@ async function cmdSuperClean() {
   const { lines: cleanedBrackets, changed: bracketsChanged } = cleanupClosingBrackets(normalizedLines);
   const { lines: cleanedObjects, changed: objectsChanged } = cleanupObjectLiterals(cleanedBrackets);
   const { lines: cleanedStrings, changed: stringsChanged } = trimStringContents(cleanedObjects);
+  const { lines: collapsedStyles, changed: stylesChanged } = collapseStyleObjects(cleanedStrings);
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, cleanedStrings.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, collapsedStyles.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
   try {
     await vscode.commands.executeCommand("editor.action.organizeImports");
@@ -945,7 +990,7 @@ async function cmdSuperClean() {
   }
   await restoreProtectedReactImports(doc, originalReactLines);
   vscode.window.showInformationMessage(
-    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, importaciones faltantes agregadas, indentaci\xF3n ${indentNormalized ? "normalizada" : "sin cambios"}, espacios/comas ${bracketsChanged || objectsChanged ? "limpios" : "sin cambios"}, strings ${stringsChanged ? "trimeados" : "sin cambios"}, archivo formateado.`
+    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, importaciones faltantes agregadas, indentaci\xF3n ${indentNormalized ? "normalizada" : "sin cambios"}, espacios/comas ${bracketsChanged || objectsChanged ? "limpios" : "sin cambios"}, strings ${stringsChanged ? "trimeados" : "sin cambios"}, styles ${stylesChanged ? "colapsados" : "sin cambios"}, archivo formateado.`
   );
 }
 async function cmdOpenAsNewProject(uri) {
