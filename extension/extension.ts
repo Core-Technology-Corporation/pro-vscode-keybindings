@@ -738,6 +738,57 @@ function trimAndCollapseBlankLines(lines: string[]): string[] {
   return collapsed;
 }
 
+/** Removes excessive indentation inside functions — normalizes to standard 2-space indent. */
+function normalizeIndentation(lines: string[]): { lines: string[]; changed: boolean } {
+  const stack: { indent: string; depth: number }[] = [];
+  let changed = false;
+  const result: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      result.push(line);
+      continue;
+    }
+
+    const currentIndent = indentOf(line);
+    const opens = (line.match(/\{/g) || []).length;
+    const closes = (line.match(/\}/g) || []).length;
+
+    while (stack.length > 0) {
+      const top = stack[stack.length - 1];
+      if (currentIndent.length <= top.indent.length) {
+        stack.pop();
+      } else {
+        break;
+      }
+    }
+
+    let expectedIndent = '';
+    if (stack.length > 0) {
+      expectedIndent = stack[stack.length - 1].indent + '  ';
+    }
+
+    let newLine = line;
+    if (trimmed && currentIndent !== expectedIndent && !trimmed.startsWith('//') && !trimmed.startsWith('*')) {
+      newLine = expectedIndent + trimmed;
+      if (newLine !== line) {
+        changed = true;
+      }
+    }
+
+    result.push(newLine);
+
+    if (opens > closes) {
+      stack.push({ indent: expectedIndent, depth: stack.length });
+    }
+  }
+
+  return { lines: result, changed };
+}
+
 /** Adds a `default:` case with a console.warn to switch statements that don't have one. */
 function addMissingSwitchDefaults(lines: string[]): { lines: string[]; addedCount: number } {
   const inserts: { targetLine: number; indent: string; statement: string }[] = [];
@@ -928,10 +979,11 @@ async function cmdSuperClean(): Promise<void> {
   const { lines: withDefaults, addedCount: defaultsAdded } = addMissingSwitchDefaults(consoleLines);
   const { lines: withImports, changed: importsRegrouped } = organizeImportGroups(withDefaults);
   const collapsedLines = trimAndCollapseBlankLines(withImports);
+  const { lines: normalizedLines, changed: indentNormalized } = normalizeIndentation(collapsedLines);
 
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, collapsedLines.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, normalizedLines.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
 
   try {
@@ -953,7 +1005,8 @@ async function cmdSuperClean(): Promise<void> {
 
   vscode.window.showInformationMessage(
     `Pro Keybindings ⚡ Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ` +
-      `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, importaciones faltantes agregadas, archivo formateado.`
+      `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, importaciones faltantes agregadas, ` +
+      `indentación ${indentNormalized ? 'normalizada' : 'sin cambios'}, archivo formateado.`
   );
 }
 
