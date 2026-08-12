@@ -60,6 +60,10 @@ Pro VSCode Keybindings es un set mínimo de atajos de teclado, más un puñado d
 
 ## Menú contextual (Editor y Explorador)
 
+**🧹 Limpiar importaciones en todo el proyecto** — abre una paleta de comandos y limpia/organiza imports en todos los archivos TypeScript y JavaScript del proyecto en una sola pasada. Aplica las mismas reglas que "⚡ Super": agrupa en externos/internos/relativos, reordena alfabéticamente, protege imports de React.
+
+---
+
 **♻️ Limpiar consolas** (`Ctrl+F6`, o click derecho → "♻️ Limpiar consolas" — disponible tanto en el editor como en el Explorador, solo para `.ts` `.tsx` `.js` `.jsx` `.mjs` `.cjs` `.vue` `.svelte` `.astro`) estandariza el logging del archivo:
 
 - Elimina todo `console.log(...)` temporal o de depuración.
@@ -79,6 +83,11 @@ No cambia la lógica del código. Se puede ejecutar de nuevo sin problema: antes
 - Agrega un caso `default:` con `console.warn(...)` + `break;` a los `switch` que no tienen uno.
 - Reagrupa los `import` en tres bloques separados por una línea en blanco: externos, internos (`@/...`, `~/...`) y relativos (`./`, `../`), preservando el orden dentro de cada grupo.
 - **Protege cualquier import cuyo origen sea exactamente `'react'` o `"react"`** (`import React from 'react';`, `import React, { Component } from 'react';`, `import { useState, useEffect } from 'react';`, etc.): nunca se reordena, reformatea, ni se le quitan miembros "sin usar" — queda carácter por carácter igual, aunque `organizeImports` o el formateador quieran tocarlo. Esta protección corre en **ambos** comandos, no solo en "⚡ Super".
+- **Nuevo:** Colapsa `style={{}}` multilinea a una sola línea en archivos JSX/React.
+- **Nuevo:** Trimea espacios dentro de strings.
+- **Nuevo:** Limpia objetos y arrays (normaliza espaciado).
+- **Nuevo:** Normaliza indentación en todo el archivo.
+- **Nuevo:** Agrega importaciones faltantes automáticamente.
 
 > ⚠️ `F12` reemplaza el atajo por defecto de VS Code "Ir a la definición" (Go to Definition) — pero solo dentro de los archivos con esas extensiones. En el resto de los lenguajes, `F12` sigue funcionando como siempre.
 >

@@ -1,5 +1,19 @@
 # Change Log
 
+## [1.0.10]
+
+- Enhanced **⚡ Super** command with additional cleaning capabilities:
+  - Collapse multi-line `style={{}}` to single line in JSX/React files.
+  - Trim whitespace inside strings.
+  - Clean objects and arrays (normalize spacing).
+  - Normalize indentation across the file.
+  - Add missing imports automatically.
+- New command **🧹 Pro Keybindings: Clean Up Project Imports** — cleans and organizes imports across the entire project in one go.
+
+## [1.0.9]
+
+- New command **🧹 Pro Keybindings: Clean Up Project Imports** (`proKeybindings.cleanupProjectImports`), bound to accessible keybinding. Traverses all `.ts`, `.tsx`, `.js`, `.jsx` files in the project and runs the same import cleanup that "⚡ Super" applies — removes unused imports, reorders into external/internal/relative blocks, protects React imports.
+
 ## [1.0.8]
 
 - New command **Pro Keybindings: Open Selected Folder In New Window** (`proKeybindings.openSelectedFolderInNewWindow`), bound to `Alt+Shift+Enter` in the File Explorer. Opens the folder currently selected in the Explorer in a new VS Code window, using the Explorer's own `copyFilePath` command internally to read the selection (the extension API doesn't expose it directly).

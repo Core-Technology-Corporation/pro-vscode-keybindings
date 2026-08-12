@@ -295,7 +295,6 @@ var CommitMenuPty = class {
   constructor(repo) {
     this.repo = repo;
   }
-  repo;
   writeEmitter = new vscode.EventEmitter();
   onDidWrite = this.writeEmitter.event;
   closeEmitter = new vscode.EventEmitter();
