@@ -835,6 +835,42 @@ function cleanupObjectLiterals(lines: string[]): { lines: string[]; changed: boo
   return { lines: result, changed };
 }
 
+/** Trims whitespace inside strings: "  text  " -> "text". */
+function trimStringContents(lines: string[]): { lines: string[]; changed: boolean } {
+  let changed = false;
+  const result = lines.map((line) => {
+    const original = line;
+
+    line = line.replace(/"([^"]*)"/g, (match, content) => {
+      const trimmed = content.trim();
+      if (trimmed !== content) {
+        return `"${trimmed}"`;
+      }
+      return match;
+    });
+
+    line = line.replace(/'([^']*)'/g, (match, content) => {
+      const trimmed = content.trim();
+      if (trimmed !== content) {
+        return `'${trimmed}'`;
+      }
+      return match;
+    });
+
+    line = line.replace(/`([^`]*)`/g, (match, content) => {
+      const trimmed = content.trim();
+      if (trimmed !== content) {
+        return `\`${trimmed}\``;
+      }
+      return match;
+    });
+
+    if (line !== original) changed = true;
+    return line;
+  });
+  return { lines: result, changed };
+}
+
 /** Adds a `default:` case with a console.warn to switch statements that don't have one. */
 function addMissingSwitchDefaults(lines: string[]): { lines: string[]; addedCount: number } {
   const inserts: { targetLine: number; indent: string; statement: string }[] = [];
@@ -1028,10 +1064,11 @@ async function cmdSuperClean(): Promise<void> {
   const { lines: normalizedLines, changed: indentNormalized } = normalizeIndentation(collapsedLines);
   const { lines: cleanedBrackets, changed: bracketsChanged } = cleanupClosingBrackets(normalizedLines);
   const { lines: cleanedObjects, changed: objectsChanged } = cleanupObjectLiterals(cleanedBrackets);
+  const { lines: cleanedStrings, changed: stringsChanged } = trimStringContents(cleanedObjects);
 
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, cleanedObjects.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, cleanedStrings.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
 
   try {
@@ -1054,7 +1091,8 @@ async function cmdSuperClean(): Promise<void> {
   vscode.window.showInformationMessage(
     `Pro Keybindings ⚡ Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ` +
       `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, importaciones faltantes agregadas, ` +
-      `indentación ${indentNormalized ? 'normalizada' : 'sin cambios'}, espacios/comas ${bracketsChanged || objectsChanged ? 'limpios' : 'sin cambios'}, archivo formateado.`
+      `indentación ${indentNormalized ? 'normalizada' : 'sin cambios'}, espacios/comas ${bracketsChanged || objectsChanged ? 'limpios' : 'sin cambios'}, ` +
+      `strings ${stringsChanged ? 'trimeados' : 'sin cambios'}, archivo formateado.`
   );
 }
 

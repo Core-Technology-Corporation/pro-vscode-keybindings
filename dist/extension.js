@@ -744,6 +744,36 @@ function cleanupObjectLiterals(lines) {
   });
   return { lines: result, changed };
 }
+function trimStringContents(lines) {
+  let changed = false;
+  const result = lines.map((line) => {
+    const original = line;
+    line = line.replace(/"([^"]*)"/g, (match, content) => {
+      const trimmed = content.trim();
+      if (trimmed !== content) {
+        return `"${trimmed}"`;
+      }
+      return match;
+    });
+    line = line.replace(/'([^']*)'/g, (match, content) => {
+      const trimmed = content.trim();
+      if (trimmed !== content) {
+        return `'${trimmed}'`;
+      }
+      return match;
+    });
+    line = line.replace(/`([^`]*)`/g, (match, content) => {
+      const trimmed = content.trim();
+      if (trimmed !== content) {
+        return `\`${trimmed}\``;
+      }
+      return match;
+    });
+    if (line !== original) changed = true;
+    return line;
+  });
+  return { lines: result, changed };
+}
 function addMissingSwitchDefaults(lines) {
   const inserts = [];
   for (let i = 0; i < lines.length; i++) {
@@ -896,9 +926,10 @@ async function cmdSuperClean() {
   const { lines: normalizedLines, changed: indentNormalized } = normalizeIndentation(collapsedLines);
   const { lines: cleanedBrackets, changed: bracketsChanged } = cleanupClosingBrackets(normalizedLines);
   const { lines: cleanedObjects, changed: objectsChanged } = cleanupObjectLiterals(cleanedBrackets);
+  const { lines: cleanedStrings, changed: stringsChanged } = trimStringContents(cleanedObjects);
   const fullRange = new vscode.Range(doc.positionAt(0), doc.positionAt(doc.getText().length));
   const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.replace(doc.uri, fullRange, cleanedObjects.join(eol));
+  workspaceEdit.replace(doc.uri, fullRange, cleanedStrings.join(eol));
   await vscode.workspace.applyEdit(workspaceEdit);
   try {
     await vscode.commands.executeCommand("editor.action.organizeImports");
@@ -914,7 +945,7 @@ async function cmdSuperClean() {
   }
   await restoreProtectedReactImports(doc, originalReactLines);
   vscode.window.showInformationMessage(
-    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, importaciones faltantes agregadas, indentaci\xF3n ${indentNormalized ? "normalizada" : "sin cambios"}, espacios/comas ${bracketsChanged || objectsChanged ? "limpios" : "sin cambios"}, archivo formateado.`
+    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, importaciones faltantes agregadas, indentaci\xF3n ${indentNormalized ? "normalizada" : "sin cambios"}, espacios/comas ${bracketsChanged || objectsChanged ? "limpios" : "sin cambios"}, strings ${stringsChanged ? "trimeados" : "sin cambios"}, archivo formateado.`
   );
 }
 async function cmdOpenAsNewProject(uri) {
