@@ -940,6 +940,11 @@ async function cmdSuperClean(): Promise<void> {
     // No import-organizing provider for this language — nothing to do.
   }
   try {
+    await vscode.commands.executeCommand('editor.action.addMissingImports');
+  } catch {
+    // No import-adding provider for this language — nothing to do.
+  }
+  try {
     await vscode.commands.executeCommand('editor.action.formatDocument');
   } catch {
     // No formatter registered/installed for this language — leave indentation as-is.
@@ -948,7 +953,7 @@ async function cmdSuperClean(): Promise<void> {
 
   vscode.window.showInformationMessage(
     `Pro Keybindings ⚡ Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ` +
-      `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, archivo formateado.`
+      `${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? 'reagrupados' : 'sin cambios'}, importaciones faltantes agregadas, archivo formateado.`
   );
 }
 

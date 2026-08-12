@@ -295,6 +295,7 @@ var CommitMenuPty = class {
   constructor(repo) {
     this.repo = repo;
   }
+  repo;
   writeEmitter = new vscode.EventEmitter();
   onDidWrite = this.writeEmitter.event;
   closeEmitter = new vscode.EventEmitter();
@@ -841,12 +842,16 @@ async function cmdSuperClean() {
   } catch {
   }
   try {
+    await vscode.commands.executeCommand("editor.action.addMissingImports");
+  } catch {
+  }
+  try {
     await vscode.commands.executeCommand("editor.action.formatDocument");
   } catch {
   }
   await restoreProtectedReactImports(doc, originalReactLines);
   vscode.window.showInformationMessage(
-    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, archivo formateado.`
+    `Pro Keybindings \u26A1 Super: ${removedCount} console.log/debug eliminados, ${insertedCount} console.error/warn/info agregados, ${defaultsAdded} default agregados a switch, imports ${importsRegrouped ? "reagrupados" : "sin cambios"}, importaciones faltantes agregadas, archivo formateado.`
   );
 }
 async function cmdOpenAsNewProject(uri) {
