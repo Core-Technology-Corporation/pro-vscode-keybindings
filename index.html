@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pro VSCode Keybindings</title>
+<meta name="description" content="Atajos de teclado y comandos inteligentes para VS Code: ejecutar el proyecto según su tipo, hacer commits con Conventional Commits y limpiar código en un solo paso.">
+<meta name="author" content="Alvaro Siles Estrada">
+<meta property="og:title" content="Pro VSCode Keybindings">
+<meta property="og:description" content="Atajos de teclado y comandos inteligentes para VS Code: ejecutar el proyecto según su tipo, hacer commits con Conventional Commits y limpiar código en un solo paso.">
+<meta property="og:image" content="01-vista-principal.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --ink: #16181d; --ink-2: #4a4f5a; --ink-3: #7b808b;
+  --line: #e2e0d9; --accent: #1f5fbf; --accent-soft: #e8eef8; --code-bg: #f0eee8;
+  --shadow: 0 1px 2px rgba(20,22,28,.06), 0 8px 24px rgba(20,22,28,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111317; --surface: #171a1f; --ink: #e7e9ee; --ink-2: #a9aeb9; --ink-3: #777d89;
+    --line: #262a31; --accent: #6ea8ff; --accent-soft: #1a2433; --code-bg: #1d2127;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111317; --surface: #171a1f; --ink: #e7e9ee; --ink-2: #a9aeb9; --ink-3: #777d89;
+  --line: #262a31; --accent: #6ea8ff; --accent-soft: #1a2433; --code-bg: #1d2127;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 "IBM Plex Sans", system-ui, sans-serif; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, kbd, pre, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+code { font-size: .88em; background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+kbd { font-size: .8em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: .05em .4em; background: var(--surface); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+header.top { border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; justify-content: space-between; align-items: center; height: 56px; font-size: 14px; }
+.brand { color: var(--ink); font-weight: 600; letter-spacing: .01em; }
+.brand span { color: var(--ink-3); font-weight: 400; }
+.top nav { display: flex; gap: 20px; align-items: center; }
+.top nav a { color: var(--ink-2); }
+.theme-btn { background: none; border: 1px solid var(--line); color: var(--ink-2); border-radius: 6px; padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+.hero { padding: 72px 0 40px; }
+.kicker { font: 500 12px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); }
+h1 { font-size: clamp(34px, 5vw, 52px); line-height: 1.08; letter-spacing: -.02em; margin: 16px 0 18px; font-weight: 600; }
+.lead { font-size: 19px; color: var(--ink-2); max-width: 760px; margin: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 0; padding: 0; list-style: none; }
+.tags li { font: 12.5px "IBM Plex Mono", monospace; border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; color: var(--ink-2); background: var(--surface); }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; font-weight: 500; font-size: 15px; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:hover { text-decoration: none; opacity: .9; }
+.meta { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin: 44px 0 0; }
+.meta div { padding: 16px 20px; border-left: 1px solid var(--line); }
+.meta div:first-child { border-left: 0; }
+.meta dt { font: 500 11px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.meta dd { margin: 4px 0 0; font-weight: 500; }
+section { padding: 56px 0; border-top: 1px solid var(--line); }
+.sec-head { display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sec-label { font: 500 12px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-3); padding-top: 6px; }
+.sec-label b { display: block; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+h2 { font-size: 26px; letter-spacing: -.01em; margin: 0 0 18px; font-weight: 600; }
+p { margin: 0 0 14px; }
+.body { color: var(--ink-2); }
+.body strong { color: var(--ink); font-weight: 600; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+.card h3 { margin: 0 0 6px; font-size: 13px; font: 500 12px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.gallery { display: grid; gap: 28px; }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+figure button { all: unset; display: block; cursor: zoom-in; width: 100%; }
+figure img { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--line); }
+figcaption { padding: 14px 18px; font-size: 15px; color: var(--ink-2); display: flex; gap: 14px; }
+figcaption .n { font: 500 12px "IBM Plex Mono", monospace; color: var(--accent); padding-top: 3px; white-space: nowrap; }
+figcaption strong { color: var(--ink); }
+.features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.feature { padding: 20px 22px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.feature:nth-child(-n+2) { border-top: 0; }
+.feature:nth-child(odd) { border-left: 0; }
+.feature h3 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+.feature p { margin: 0; color: var(--ink-2); font-size: 15px; }
+pre.diagram { background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; overflow-x: auto; font-size: 13px; line-height: 1.6; color: var(--ink); margin: 0 0 22px; }
+ul.notes { margin: 0; padding: 0; list-style: none; }
+ul.notes li { position: relative; padding-left: 22px; margin-bottom: 10px; color: var(--ink-2); }
+ul.notes li::before { content: "—"; position: absolute; left: 0; color: var(--ink-3); }
+table.stack { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 15px; }
+table.stack th, table.stack td { text-align: left; padding: 12px 18px; border-top: 1px solid var(--line); vertical-align: top; }
+table.stack tr:first-child th, table.stack tr:first-child td { border-top: 0; }
+table.stack th { width: 180px; font: 500 12px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); padding-top: 15px; }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.cols .card h3 { margin-bottom: 12px; }
+.cols ul.notes li { font-size: 15px; }
+.btn.ghost { background: transparent; }
+.small { font-size: 12px; color: var(--ink-3); }
+.cols > * { min-width: 0; }
+.cols.install { grid-template-columns: 1fr; margin-top: 18px; }
+.install .card { display: grid; grid-template-columns: 220px 1fr auto; align-items: center; gap: 12px 24px; }
+.install .card h3 { margin: 0; }
+.install .card .card-actions { margin-top: 0; justify-content: flex-end; }
+.install .card > * { min-width: 0; }
+@media (max-width: 860px) { .install .card { grid-template-columns: minmax(0, 1fr); } .install .card .card-actions { justify-content: flex-start; } }
+.install .card p { margin: 0; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.card-actions .btn { padding: 8px 14px; font-size: 14px; }
+.cmd { display: flex; align-items: center; gap: 8px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 8px 8px 12px; }
+.cmd code { background: none; padding: 0; font-size: 12.5px; overflow-x: auto; white-space: nowrap; flex: 1; min-width: 0; }
+.copy { flex: none; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); border-radius: 6px; padding: 3px 10px; font: 12px "IBM Plex Sans", sans-serif; cursor: pointer; }
+footer { border-top: 1px solid var(--line); padding: 36px 0 56px; font-size: 14px; color: var(--ink-3); }
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+dialog::backdrop { background: rgba(10,12,16,.82); }
+dialog img { display: block; max-width: 96vw; max-height: 94vh; border-radius: 8px; }
+@media (max-width: 860px) {
+  .sec-head { grid-template-columns: 1fr; gap: 12px; }
+  .trio, .cols { grid-template-columns: 1fr; }
+  .meta { grid-template-columns: repeat(2, 1fr); }
+  .meta div:nth-child(3) { border-left: 0; }
+  .meta div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .features { grid-template-columns: 1fr; }
+  .feature { border-left: 0 !important; border-top: 1px solid var(--line) !important; }
+  .feature:first-child { border-top: 0 !important; }
+  .top nav a.hide-sm { display: none; }
+}
+@media (max-width: 480px) {
+  .wrap { padding: 0 16px; }
+  .hero { padding-top: 48px; }
+  table.stack th { width: 110px; padding-left: 14px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="https://github.com/alvarosiles">Alvaro Siles Estrada <span>/ proyectos</span></a>
+    <nav>
+      <a class="hide-sm" href="#capturas">Capturas</a>
+      <a class="hide-sm" href="#arquitectura">Arquitectura</a>
+      <a href="#instalacion">Instalar</a>
+      <a href="https://github.com/alvarosiles/pro-vscode-keybindings">Código</a>
+      <button class="theme-btn" id="theme" type="button" aria-label="Cambiar tema">Tema</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="kicker">Extensión de VS Code · Productividad</div>
+    <h1>Pro VSCode Keybindings</h1>
+    <p class="lead">Atajos de teclado y comandos inteligentes para VS Code: ejecutar el proyecto según su tipo, hacer commits con Conventional Commits y limpiar código en un solo paso.</p>
+    <ul class="tags"><li>TypeScript</li><li>VS Code API</li><li>esbuild</li><li>Git</li><li>Node.js</li></ul>
+    <div class="actions">
+      <a class="btn primary" href="vscode:extension/alvarosiles.pro-vscode-keybindings">Instalar en VS Code</a>
+      <a class="btn" href="descarga/pro-vscode-keybindings-1.0.13.vsix" download>Descargar .vsix <span class="mono small">64 KB</span></a>
+      <a class="btn" href="https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings" target="_blank" rel="noopener">Marketplace ↗</a>
+      <a class="btn ghost" href="https://github.com/alvarosiles/pro-vscode-keybindings" target="_blank" rel="noopener">Código ↗</a>
+    </div>
+    <dl class="meta"><div><dt>Versión</dt><dd>1.0.13</dd></div><div><dt>Estado</dt><dd>Publicada en el Marketplace</dd></div><div><dt>Periodo</dt><dd>jul – ago 2026</dd></div><div><dt>Commits</dt><dd>58</dd></div></dl>
+  </div>
+
+  <section id="resumen">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>01</b>Resumen</div>
+      <div>
+        <h2>El proyecto</h2>
+        <div class="body"><p>El proyecto combina dos capas. La primera es un <strong>keymap declarativo</strong>, organizado por categoría (editor, terminal, Git, depuración, explorador), que un script de build compila y valida antes de publicar. La segunda es una <strong>extensión en TypeScript</strong> con 10 comandos propios.</p><p>Entre esos comandos están Smart Run, que detecta el tipo de proyecto y lo ejecuta de la forma adecuada; un flujo de commits con Conventional Commits; y dos limpiadores de código, <em>Limpiar consolas</em> y <em>⚡ Super</em>, que estandarizan el logging y los imports sin cambiar la lógica.</p></div>
+        <div class="trio">
+          <div class="card"><h3>Problema</h3><p>VS Code trae atajos genéricos, y tareas repetitivas como ejecutar el proyecto, hacer un commit con formato o quitar logs de depuración requieren varios pasos o extensiones separadas.</p></div>
+          <div class="card"><h3>Objetivo</h3><p>Reducir esas tareas a una tecla, sin configuración y con el mismo comportamiento en Windows, Linux y macOS.</p></div>
+          <div class="card"><h3>Público</h3><p>Desarrolladores JavaScript/TypeScript, React y React Native que usan VS Code y Git a diario.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="capturas">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>02</b>Capturas</div>
+      <div>
+        <h2>En funcionamiento</h2>
+        <div class="gallery">
+          <figure>
+            <button type="button" data-full="01-vista-principal.png" aria-label="Ampliar: Vista principal"><img src="01-vista-principal.png" alt="Vista principal de Pro VSCode Keybindings" width="1920" height="1042" loading="eager"></button>
+            <figcaption><span class="n">01</span><span><strong>Vista principal.</strong> Editor de atajos filtrado por <code>proKeybindings</code>: comandos, teclas, condiciones <code>when</code> y origen.</span></figcaption>
+          </figure>
+          <figure>
+            <button type="button" data-full="02-funcionalidad-principal.png" aria-label="Ampliar: Funcionalidad principal"><img src="02-funcionalidad-principal.png" alt="Funcionalidad principal de Pro VSCode Keybindings" width="1920" height="1042" loading="lazy"></button>
+            <figcaption><span class="n">02</span><span><strong>Funcionalidad principal.</strong> Resultado real de <strong>⚡ Super</strong> sobre un componente React: imports reagrupados, logs eliminados y <code>default:</code> agregado.</span></figcaption>
+          </figure>
+          <figure>
+            <button type="button" data-full="03-funcionalidad-complementaria.png" aria-label="Ampliar: Funcionalidad complementaria"><img src="03-funcionalidad-complementaria.png" alt="Funcionalidad complementaria de Pro VSCode Keybindings" width="1920" height="1042" loading="lazy"></button>
+            <figcaption><span class="n">03</span><span><strong>Funcionalidad complementaria.</strong> Selector de <strong>Smart Run</strong> (<kbd>Ctrl+F12</kbd>) con las estrategias de ejecución por tipo de proyecto.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="funcionalidades">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>03</b>Funcionalidades</div>
+      <div>
+        <h2>Qué hace</h2>
+        <div class="features"><div class="feature"><h3>Smart Run</h3><p><kbd>Ctrl+F12</kbd> detecta el tipo de proyecto (React, React Native, Java, HTML, extensión de VS Code) y ofrece cómo ejecutarlo.</p></div><div class="feature"><h3>Flujo de commits</h3><p>Menú numerado de Conventional Commits con commit y push (<kbd>Ctrl+F9</kbd>), Quick Commit y apertura en GitHub Desktop.</p></div><div class="feature"><h3>⚡ Super</h3><p>Elimina logs de depuración, agrega <code>default:</code> a los <code>switch</code>, reagrupa los imports en externos, internos y relativos, y protege los imports de React.</p></div><div class="feature"><h3>Limpiar consolas</h3><p>Asegura un <code>console.error</code> en cada <code>catch</code> y es idempotente: borra lo que insertó en la ejecución anterior antes de reinstrumentar.</p></div><div class="feature"><h3>Keymap validado</h3><p>El build falla si dos entradas comparten la misma tecla o si un JSON es inválido.</p></div><div class="feature"><h3>Atajos contextuales</h3><p>Cláusulas <code>when</code> específicas: <kbd>Ctrl+F5</kbd> ejecuta SQL en archivos <code>.sql</code> y recarga la ventana en el resto.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="arquitectura">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>04</b>Arquitectura</div>
+      <div>
+        <h2>Cómo está construido</h2>
+        <pre class="diagram">src/*.json  (editor, git, debug, terminal, …)
+      │  scripts/build.js — valida JSON, campos y teclas duplicadas
+      ▼
+package.json › contributes.keybindings   +   dist/keybindings.json
+
+extension/extension.ts  (~1.300 líneas)
+      │  esbuild → dist/extension.js  (CJS · Node 18 · vscode externo)
+      ▼
+activación: onStartupFinished → 10 comandos registrados</pre>
+        <ul class="notes"><li>Una sola fuente de verdad genera el manifiesto, porque VS Code solo lee los keybindings desde <code>package.json</code>.</li><li>La limpieza combina transformaciones propias con <code>editor.action.formatDocument</code> y <code>organizeImports</code>, en lugar de implementar un formateador nuevo.</li><li>La selección del Explorador, que la API no expone, se obtiene con <code>copyFilePath</code>.</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>05</b>Stack</div>
+      <div>
+        <h2>Tecnologías</h2>
+        <table class="stack"><tr><th scope="row">Lenguaje</th><td>TypeScript 5.5</td></tr><tr><th scope="row">Plataforma</th><td>VS Code Extension API ^1.93</td></tr><tr><th scope="row">Build</th><td>esbuild 0.24 · script Node propio</td></tr><tr><th scope="row">Publicación</th><td>vsce · PowerShell / Bash</td></tr><tr><th scope="row">Integraciones</th><td>Git · GitHub Desktop · Live Server</td></tr></table>
+      </div>
+    </div>
+  </section>
+
+  <section id="instalacion">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>06</b>Instalación</div>
+      <div>
+        <h2>Instalar la extensión</h2>
+        <p class="body">Versión publicada <code>1.0.13</code> · identificador <code>alvarosiles.pro-vscode-keybindings</code>. Elegí la opción que prefieras.</p>
+        <div class="cols install">
+          <div class="card">
+            <h3>Online · Marketplace</h3>
+            <p>Abre VS Code e instala la extensión desde el Marketplace oficial.</p>
+            <div class="card-actions">
+              <a class="btn primary" href="vscode:extension/alvarosiles.pro-vscode-keybindings">Abrir en VS Code</a>
+              <a class="btn" href="https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings" target="_blank" rel="noopener">Ver en Marketplace ↗</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Línea de comandos</h3>
+            <div class="cmd"><code>code --install-extension alvarosiles.pro-vscode-keybindings</code><button type="button" class="copy" data-copy="code --install-extension alvarosiles.pro-vscode-keybindings">Copiar</button></div>
+          </div>
+          <div class="card">
+            <h3>Local · archivo .vsix</h3>
+            <p>Sin conexión al Marketplace: descargá el paquete e instalalo con <em>Extensiones › … › Instalar desde VSIX</em> o con <code>code --install-extension pro-vscode-keybindings-1.0.13.vsix</code>.</p>
+            <div class="card-actions"><a class="btn" href="descarga/pro-vscode-keybindings-1.0.13.vsix" download>Descargar .vsix · 64 KB</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ingenieria">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>07</b>Ingeniería</div>
+      <div>
+        <h2>Decisiones y próximos pasos</h2>
+        <div class="cols">
+          <div class="card"><h3>Seguridad</h3><ul class="notes"><li>No hace llamadas de red: no hay URLs ni llamadas HTTP en el código de la extensión.</li><li>Sin telemetría, según su política de privacidad.</li><li>El README advierte que <kbd>Ctrl+F9</kbd> hace push sin confirmación.</li></ul></div>
+          <div class="card"><h3>Retos técnicos</h3><ul class="notes"><li>Transformar código fuente sin un parser completo y sin cambiar la lógica.</li><li>Evitar conflictos con los atajos nativos de VS Code.</li><li>Leer la selección del Explorador sin una API oficial.</li></ul></div>
+          <div class="card"><h3>Hoja de ruta</h3><ul class="notes"><li>Corregir ⚡ Super con JSX multilínea (detectado durante esta documentación).</li><li>Usar la TypeScript Compiler API o Babel para las transformaciones.</li><li>Agregar pruebas automatizadas con casos JSX/TSX.</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Diseño, desarrollo y mantenimiento: <a href="https://github.com/alvarosiles">Alvaro Siles Estrada</a></span>
+    <span class="mono">Licencia MIT · <a href="https://github.com/alvarosiles/pro-vscode-keybindings">github.com/alvarosiles/pro-vscode-keybindings</a></span>
+  </div>
+</footer>
+
+<dialog id="viewer"><img alt=""></dialog>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme');
+  try { var saved = localStorage.getItem('theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+  var dlg = document.getElementById('viewer'), img = dlg.querySelector('img');
+  document.querySelectorAll('[data-full]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      img.src = b.getAttribute('data-full'); img.alt = b.getAttribute('aria-label');
+      if (dlg.showModal) dlg.showModal(); else window.open(img.src);
+    });
+  });
+  dlg.addEventListener('click', function () { dlg.close(); });
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = b.getAttribute('data-copy');
+      var done = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+    });
+  });
+})();
+</script>
+</body>
+</html>
