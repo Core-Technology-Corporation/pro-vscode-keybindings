@@ -129,6 +129,23 @@ vsce login alvarosiles   # una sola vez, requiere un PAT de Azure DevOps
 ./scripts/publish.ps1 -Message "Add debug shortcuts" -Push -Publish     # además hace push y publica en el Marketplace
 ```
 
+## Arquitectura técnica
+
+- **Atajos declarativos**: `src/*.json` (editor, terminal, explorer, git, debug, ai, navigation, database) → `scripts/build.js` los combina, valida que sean JSON válido, que cada entrada tenga `key` y `command`, y **que no haya teclas duplicadas**. Después los escribe en `dist/keybindings.json` y en `contributes.keybindings` de `package.json`.
+- **Comandos inteligentes**: `extension/extension.ts` (~1.300 líneas). esbuild lo empaqueta en `dist/extension.js` (CJS, Node 18, `vscode` como externo) y se activa con `onStartupFinished`. Registra 10 comandos: `detectProjectType`, `smartRun`, `quickCommit`, `commitMessagePicker`, `openGitHubDesktop`, `formatWithConsoles`, `superClean`, `cleanupProjectImports`, `openSelectedFolderInNewWindow` y `openAsNewProject`.
+- **Limpieza de código**: combina transformaciones de texto propias (logs, guardas, `default:` en `switch`, agrupación de imports) con los comandos nativos `editor.action.formatDocument` y `editor.action.organizeImports`.
+- **Scripts de mantenimiento**: `scripts/publish.ps1` / `publish.sh` (build, subida de versión, commit, empaquetado y publicación opcional), `test_local.*` y `uninstall_local.ps1`.
+
+### Tecnologías
+
+TypeScript `^5.5`, esbuild `^0.24`, `@types/vscode ^1.93`, `vsce ^2.15`. Requiere VS Code `^1.93.0`.
+
+### Limitaciones conocidas
+
+- **⚡ Super puede romper JSX.** En una prueba con un componente React (`style={{ padding: 16, gap: 8 }}` multilínea), el resultado quedó como `style={{ padding: 16, gap: 8 } >` y `</ div>`, que es JSX inválido. Conviene revisar el diff antes de guardar mientras no haya pruebas para estos casos.
+- No hay pruebas automatizadas.
+- El CHANGELOG no sigue un orden de versiones lineal (aparece `1.1.0` entre `1.0.8` y `1.0.0`) y no tiene entrada para `1.0.11`, la versión actual de `package.json`.
+
 ## Sobre el desarrollador
 
 Creada por **Alvaro Siles** — desarrollador de extensiones y herramientas de productividad para navegadores y Visual Studio Code. Pro VSCode Keybindings es un proyecto independiente y open-source, hecho y mantenido por una sola persona, a la vista de todos.
