@@ -97,6 +97,21 @@ table.stack th { width: 180px; font: 500 12px "IBM Plex Mono", monospace; text-t
 .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .cols .card h3 { margin-bottom: 12px; }
 .cols ul.notes li { font-size: 15px; }
+.btn.ghost { background: transparent; }
+.small { font-size: 12px; color: var(--ink-3); }
+.cols > * { min-width: 0; }
+.cols.install { grid-template-columns: 1fr; margin-top: 18px; }
+.install .card { display: grid; grid-template-columns: 220px 1fr auto; align-items: center; gap: 12px 24px; }
+.install .card h3 { margin: 0; }
+.install .card .card-actions { margin-top: 0; justify-content: flex-end; }
+.install .card > * { min-width: 0; }
+@media (max-width: 860px) { .install .card { grid-template-columns: minmax(0, 1fr); } .install .card .card-actions { justify-content: flex-start; } }
+.install .card p { margin: 0; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.card-actions .btn { padding: 8px 14px; font-size: 14px; }
+.cmd { display: flex; align-items: center; gap: 8px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 8px 8px 12px; }
+.cmd code { background: none; padding: 0; font-size: 12.5px; overflow-x: auto; white-space: nowrap; flex: 1; min-width: 0; }
+.copy { flex: none; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); border-radius: 6px; padding: 3px 10px; font: 12px "IBM Plex Sans", sans-serif; cursor: pointer; }
 footer { border-top: 1px solid var(--line); padding: 36px 0 56px; font-size: 14px; color: var(--ink-3); }
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 dialog { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
@@ -127,6 +142,7 @@ dialog img { display: block; max-width: 96vw; max-height: 94vh; border-radius: 8
     <nav>
       <a class="hide-sm" href="#capturas">Capturas</a>
       <a class="hide-sm" href="#arquitectura">Arquitectura</a>
+      <a href="#instalacion">Instalar</a>
       <a href="https://github.com/alvarosiles/pro-vscode-keybindings">Código</a>
       <button class="theme-btn" id="theme" type="button" aria-label="Cambiar tema">Tema</button>
     </nav>
@@ -140,10 +156,12 @@ dialog img { display: block; max-width: 96vw; max-height: 94vh; border-radius: 8
     <p class="lead">Atajos de teclado y comandos inteligentes para VS Code: ejecutar el proyecto según su tipo, hacer commits con Conventional Commits y limpiar código en un solo paso.</p>
     <ul class="tags"><li>TypeScript</li><li>VS Code API</li><li>esbuild</li><li>Git</li><li>Node.js</li></ul>
     <div class="actions">
-      <a class="btn primary" href="https://github.com/alvarosiles/pro-vscode-keybindings">Ver repositorio →</a>
-      <a class="btn" href="#capturas">Ver capturas</a>
+      <a class="btn primary" href="vscode:extension/alvarosiles.pro-vscode-keybindings">Instalar en VS Code</a>
+      <a class="btn" href="descarga/pro-vscode-keybindings-1.0.13.vsix" download>Descargar .vsix <span class="mono small">64 KB</span></a>
+      <a class="btn" href="https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings" target="_blank" rel="noopener">Marketplace ↗</a>
+      <a class="btn ghost" href="https://github.com/alvarosiles/pro-vscode-keybindings" target="_blank" rel="noopener">Código ↗</a>
     </div>
-    <dl class="meta"><div><dt>Versión</dt><dd>1.0.11</dd></div><div><dt>Estado</dt><dd>Publicada en el Marketplace</dd></div><div><dt>Periodo</dt><dd>jul – ago 2026</dd></div><div><dt>Commits</dt><dd>58</dd></div></dl>
+    <dl class="meta"><div><dt>Versión</dt><dd>1.0.13</dd></div><div><dt>Estado</dt><dd>Publicada en el Marketplace</dd></div><div><dt>Periodo</dt><dd>jul – ago 2026</dd></div><div><dt>Commits</dt><dd>58</dd></div></dl>
   </div>
 
   <section id="resumen">
@@ -223,9 +241,38 @@ activación: onStartupFinished → 10 comandos registrados</pre>
     </div>
   </section>
 
+  <section id="instalacion">
+    <div class="wrap sec-head">
+      <div class="sec-label"><b>06</b>Instalación</div>
+      <div>
+        <h2>Instalar la extensión</h2>
+        <p class="body">Versión publicada <code>1.0.13</code> · identificador <code>alvarosiles.pro-vscode-keybindings</code>. Elegí la opción que prefieras.</p>
+        <div class="cols install">
+          <div class="card">
+            <h3>Online · Marketplace</h3>
+            <p>Abre VS Code e instala la extensión desde el Marketplace oficial.</p>
+            <div class="card-actions">
+              <a class="btn primary" href="vscode:extension/alvarosiles.pro-vscode-keybindings">Abrir en VS Code</a>
+              <a class="btn" href="https://marketplace.visualstudio.com/items?itemName=alvarosiles.pro-vscode-keybindings" target="_blank" rel="noopener">Ver en Marketplace ↗</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Línea de comandos</h3>
+            <div class="cmd"><code>code --install-extension alvarosiles.pro-vscode-keybindings</code><button type="button" class="copy" data-copy="code --install-extension alvarosiles.pro-vscode-keybindings">Copiar</button></div>
+          </div>
+          <div class="card">
+            <h3>Local · archivo .vsix</h3>
+            <p>Sin conexión al Marketplace: descargá el paquete e instalalo con <em>Extensiones › … › Instalar desde VSIX</em> o con <code>code --install-extension pro-vscode-keybindings-1.0.13.vsix</code>.</p>
+            <div class="card-actions"><a class="btn" href="descarga/pro-vscode-keybindings-1.0.13.vsix" download>Descargar .vsix · 64 KB</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="ingenieria">
     <div class="wrap sec-head">
-      <div class="sec-label"><b>06</b>Ingeniería</div>
+      <div class="sec-label"><b>07</b>Ingeniería</div>
       <div>
         <h2>Decisiones y próximos pasos</h2>
         <div class="cols">
@@ -264,6 +311,13 @@ activación: onStartupFinished → 10 comandos registrados</pre>
     });
   });
   dlg.addEventListener('click', function () { dlg.close(); });
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = b.getAttribute('data-copy');
+      var done = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
+    });
+  });
 })();
 </script>
 </body>

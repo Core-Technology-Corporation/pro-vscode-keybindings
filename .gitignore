@@ -1,3 +1,6 @@
 node_modules/
 *.vsix
 .claude/
+
+# Paquete publicado para descarga desde la página de presentación
+!presentacion/descarga/*.vsix

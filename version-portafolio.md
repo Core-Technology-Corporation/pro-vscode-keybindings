@@ -77,7 +77,7 @@ Confirmado por el historial de git: autor de los 58 commits del repositorio (202
 
 ## Estado
 
-Publicada en el Visual Studio Code Marketplace, según los enlaces del README. Versión `1.0.11` en `package.json`.
+Publicada en el Visual Studio Code Marketplace: la versión publicada es `1.0.13` (verificado el 2026-10-20), más nueva que la `1.0.11` de `package.json` en este repositorio.
 
 ## Capturas
 
